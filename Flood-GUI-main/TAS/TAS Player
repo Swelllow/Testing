@@ -1,27 +1,49 @@
+-- Set Mirrored to false in the global environment
+-- This allows other scripts to access the Mirrored variable
 getgenv().Mirrored = false
+
+-- Create local variables for Vector3, CFrame, and CFrame.fromEulerAnglesXYZ functions
 local NewV = Vector3.new
 local NewC = CFrame.new
 local AngC = CFrame.fromEulerAnglesXYZ
+
+-- Get the LocalPlayer and the newAlert function from the CL_MAIN_GameScript script
 local LP = game.Players.LocalPlayer
-local Alert = getsenv(LP.PlayerScripts.CL_MAIN_GameScript).newAlert
+local CLMAIN = getsenv(LP.PlayerScripts.CL_MAIN_GameScript)
+local Alert = CLMAIN.newAlert
+
+-- Get the Multiplayer, RunService, and task.wait services
 local Multi = Workspace.Multiplayer
 local RS = game:GetService('RunService')
 local wait = task.wait
 
---IMPORTANT
-local CLMAIN = getsenv(LP.PlayerScripts.CL_MAIN_GameScript)
-CLMAIN.newAlert("TAS Player Started.")
+-- Call the newAlert function to notify that the TAS Player has started
+Alert("TAS Player Started.")
+
+-- Get the Animate function from the LocalPlayer's Character
 local Animate = getsenv(LP.Character.Animate)
-local RunName = Multi:WaitForChild('NewMap'):WaitForChild('Settings'):WaitForChild('MapName').Value
+
+-- Get the name of the map from the Multiplayer game object
+local RunName = Multi.NewMap.Settings.MapName.Value
+
+-- Read the TAS data from a JSON file and decode it into a Lua table
 local TAS = game:GetService("HttpService"):JSONDecode(readfile(RunName .. ".json"))
-CLMAIN.newAlert("TAS Loaded!")
-local Map = Multi:WaitForChild("Map")
-if Map:WaitForChild('Settings'):FindFirstChild("_MirrorMap") then
-    CLMAIN.newAlert('Map is not Mirrored.')
-    Mirrored = false
-else
-    CLMAIN.newAlert('Map is mirrored, TAS will be played mirrored!')
+
+-- Call the newAlert function to notify that the TAS has been loaded
+Alert("TAS Loaded!")
+
+-- Get the Map game object from the Multiplayer
+local Map = Multi.Map
+
+-- Check if the _MirrorMap property exists in the Map's Settings object
+if Map.Settings:FindFirstChild("_MirrorMap") then
+    -- If it does, then notify that the map is mirrored and set Mirrored to true
+    Alert('Map is mirrored, TAS will be played mirrored!')
     Mirrored = true
+else
+    -- If it doesn't, then notify that the map is not mirrored and set Mirrored to false
+    Alert('Map is not Mirrored.')
+    Mirrored = false
 end
 
 local Spawn = (function() -- this whole function was made by Epix
