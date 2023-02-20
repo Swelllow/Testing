@@ -1,63 +1,77 @@
-repeat task.wait() until game:IsLoaded() 
-getgenv''.maps = {
-		"Lost Woods",
-		"Axiom",
-		"Castle Tides",
-		"Poisonous Valley",
-		"Marred Dreams",
-		"Buried Oasis",
-		"Forsaken Era",
-		"Eerie Peaks",
-		"Polar Industry",
-		"Infiltration",
-		"Cave System",
-		"Flood Island",
-		"Oriental Grove",
-		"Sky Sanctuary",
-		"Decrepit Seas",
-		"Mysterium",
-		"Forgotten Tombs",
-		"Construction Thrill",
-		"Fall Equinox",
-		"Northern Workshop",
-		"Lava Tower",
-		"Crystal Caverns",
-		"Snowy Peaks",
-		"Dark Sci-Forest",
-		"Graveyard Cliffside",
-		"Wild Savannah",
-		"Sedimentary Temple",
-		"Sunken Citadel",
-		"Relic Valley",
-		"Poisonous Forest",
-		"Abandoned Facility",
-		"Familiar Ruins",
-		"Lost Desert",
-		"Gloomy Manor",
-		"Sinking Ship",
-		"Dark Sci-Facility",
-		"Beneath The Ruins",
-		"Magmatic Mines",
-		"Fallen",
-		"Blue Moon",
-		"Poisonous Chasm",
-		"Ignis Peaks",
-		"Sandswept Ruins",
-		"Satomi Springs"
-	}
-wait = task.wait
+local maps = {
+    "Lost Woods",
+    "Axiom",
+    "Castle Tides",
+    "Poisonous Valley",
+    "Marred Dreams",
+    "Buried Oasis",
+    "Forsaken Era",
+    "Eerie Peaks",
+    "Polar Industry",
+    "Infiltration",
+    "Cave System",
+    "Flood Island",
+    "Oriental Grove",
+    "Sky Sanctuary",
+    "Decrepit Seas",
+    "Mysterium",
+    "Forgotten Tombs",
+    "Construction Thrill",
+    "Fall Equinox",
+    "Northern Workshop",
+    "Lava Tower",
+    "Crystal Caverns",
+    "Snowy Peaks",
+    "Dark Sci-Forest",
+    "Graveyard Cliffside",
+    "Wild Savannah",
+    "Sedimentary Temple",
+    "Sunken Citadel",
+    "Relic Valley",
+    "Poisonous Forest",
+    "Abandoned Facility",
+    "Familiar Ruins",
+    "Lost Desert",
+    "Gloomy Manor",
+    "Sinking Ship",
+    "Dark Sci-Facility",
+    "Beneath The Ruins", --Broken
+    "Magmatic Mines",
+    "Fallen",
+    "Blue Moon",
+    "Poisonous Chasm",
+    "Ignis Peaks",
+    "Sandswept Ruins",
+    "Satomi Springs",
+    "Mars Stations"
+}
 
 local clmain = getsenv(game:GetService("Players").LocalPlayer.PlayerScripts:FindFirstChild("CL_MAIN_GameScript")) or wait()
 local save = clmain.newAlert
 clmain.newAlert = function(text)
     save(text,nil,nil,'rainbow')
 end
+
 if getrenv().wow and debugmode == false then
-	clmain.newAlert('Already Executed!',Color3.new(1,0,0))
+    clmain.newAlert('Already Executed!',Color3.new(1,0,0))
     error('Already Executed')
 else
     getrenv().wow=''
 end
+
+local function loadMaps()
+    for i, map in ipairs(maps) do
+        clmain.newAlert("Loading map " .. map)
+        game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer, Enum.TeleportState.Requested)
+        repeat
+            wait()
+        until game:IsLoaded()
+        clmain.newAlert("Map " .. map .. " loaded")
+        wait(1.5)
+    end
+end
+
+game.Loaded:Connect(loadMaps)
 -- TAS file minifier 
 -- Starting from this line to ending line code was made by ian
 local HttpService = game:GetService("HttpService")
@@ -201,7 +215,7 @@ local colors = {
 	TextColor = Color3.fromRGB(255, 255, 255),
 	ElementColor = Color3.fromRGB(60, 60, 60)
 }
-local Window = Library.CreateLib("Flood GUI v3 | By Tomato", colors)
+local Window = Library.CreateLib("Flood GUI v3 | By Exploiter", colors)
 local a = Window:NewTab("Auto")
 local l = Window:NewTab("Local-Player")
 local b = Window:NewTab("Blatant")
@@ -324,7 +338,7 @@ auto:NewButton("Get TAS files", "Downloads Required TAS files!", function()
 			clmain.newAlert(v.." TAS file already exists!",Color3.fromRGB(50,100,255))
 		else
 			local s, r = pcall(function()
-				local tas = game:HttpGet("https://raw.githubusercontent.com/ImMejor35/Flood-GUI/main/TAS%20FILES/"..map..".json")
+				local tas = game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS%20FILES/"..map..".json")
 				writefile(v..".json", minfile(tas),true)
 			end)
 			if s then
