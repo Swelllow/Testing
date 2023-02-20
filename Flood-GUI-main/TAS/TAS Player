@@ -16,24 +16,13 @@ local RunName = Multi:WaitForChild('NewMap'):WaitForChild('Settings'):WaitForChi
 local TAS = game:GetService("HttpService"):JSONDecode(readfile(RunName .. ".json"))
 CLMAIN.newAlert("TAS Loaded!")
 local Map = Multi:WaitForChild("Map")
-# list of maps that should be skipped during the mirror event
-skip_maps = ["Mars Stations"]
-
-# function to execute mirror event on the current map
-def mirror_event():
-    # check if the current map should be skipped
-    if current_map in skip_maps:
-        print("Mirror event skipped on", current_map)
-    else:
-        print("Executing mirror event on", current_map)
-        # code to execute mirror event goes here
-
-# example usage
-current_map = "Mars Stations"
-mirror_event()  # should skip the mirror event
-
-current_map = "Earth Base"
-mirror_event()  # should execute the mirror event
+if Map:WaitForChild('Settings'):FindFirstChild("_MirrorMap") then
+    CLMAIN.newAlert('Map is not Mirrored.')
+    Mirrored = false
+else
+    CLMAIN.newAlert('Map is mirrored, TAS will be played mirrored!')
+    Mirrored = true
+end
 
 local Spawn = (function() -- this whole function was made by Epix
         local Workspace = game:GetService("Workspace")
@@ -218,3 +207,5 @@ if debugmode == true then
         MakeRayVisible(ray,Color3.new(1,0,0))
     end
 end
+
+ game:GetService("Workspace").Multiplayer.Map.Settings["_MirrorMap"]
