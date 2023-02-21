@@ -1,216 +1,145 @@
--- Set Mirrored to false in the global environment
--- This allows other scripts to access the Mirrored variable
-getgenv().Mirrored = false
-
--- Get the LocalPlayer and the newAlert function from the CL_MAIN_GameScript script
-local LP = game:GetService("Players").LocalPlayer
+local Vector3_new = Vector3.new
+local CFrame_new = CFrame.new
+local CFrame_fromEulerAnglesXYZ = CFrame.fromEulerAnglesXYZ
+local Players = game:GetService('Players')
+local LP = Players.LocalPlayer
 local Alert = getsenv(LP.PlayerScripts.CL_MAIN_GameScript).newAlert
-
--- Call the newAlert function to notify that the TAS Player has started
-Alert("TAS Player Started.")
-
--- Get the Multiplayer, RunService, and task.wait services
-local Multi = game:GetService("Workspace").Multiplayer
-local RS = game:GetService("RunService")
-local wait = task.wait
-
--- Get the name of the map from the Multiplayer game object
+local HttpService = game:GetService("HttpService")
+local Multi = game.Workspace.Multiplayer
 local RunName = Multi.NewMap.Settings.MapName.Value
-
--- Read the TAS data from a JSON file and decode it into a Lua table
-local TAS = game:GetService("HttpService"):JSONDecode(readfile(RunName .. ".json"))
-
--- Get the Map game object from the Multiplayer
+local TAS = HttpService:JSONDecode(readfile(RunName .. ".json"))
 local Map = Multi.Map
+local FindPartsInRegion3 = game.Workspace.FindPartsInRegion3
+local ReplicatedStorage_Remote_StartClientMapTimer = game:GetService("ReplicatedStorage").Remote.StartClientMapTimer.OnClientEvent
+local os_clock = os.clock
 
--- Check if the _MirrorMap property exists in the Map's Settings object and it is set to true
-if Map.Settings:FindFirstChild("_MirrorMap") and Map.Settings._MirrorMap.Value == true then
-    -- If it does, then notify that the map is mirrored and set Mirrored to true
-    Alert("Map is mirrored, TAS will be played mirrored!")
-    getgenv().Mirrored = true
-else
-    -- If it doesn't or it is set to false, then notify that the map is not mirrored and set Mirrored to false
-    Alert("Map is not mirrored.")
-    getgenv().Mirrored = false
+local NewMap = Multi:WaitForChild('NewMap')
+local MirrorMap = Map.Settings:FindFirstChild("_MirrorMap") ~= nil
+local Mirrored = not MirrorMap
+
+if MirrorMap then
+    Alert('Map is mirrored, TAS will be played mirrored!')
 end
 
--- Call the newAlert function to notify that the TAS has been loaded
-Alert("TAS Loaded!")
+local function FindSpawnPart()
+    local character = LP.Character
+    local characterPosition = character.HumanoidRootPart.Position
 
-local Spawn = (function() -- this whole function was made by Epix
-        local Workspace = game:GetService("Workspace")
-        local character = LP.Character
-        local characterPosition = character.HumanoidRootPart.Position -- only need to evaluate this once
+    local region = Region3.new(characterPosition - Vector3_new(0, 1.5, 0), characterPosition - Vector3_new(0, 2.5, 0))
+    local parts = FindPartsInRegion3(game.Workspace, region, nil, 30)
 
-        -- Get parts that have the character above them
+    local spawnPart
+    local lowestY = math.huge
 
-        -- Part that's supposed to represent the character's "feet"
-        local dummyPart = Instance.new("Part")
-        dummyPart.Size = Vector3.one
-        dummyPart.Position = characterPosition - (Vector3.yAxis * 2)
-        dummyPart.Anchored = true
-        dummyPart.CanCollide = false
-        dummyPart.Parent = Workspace
-
-        local overlapParams = OverlapParams.new()
-        overlapParams.FilterDescendantsInstances = {dummyPart} -- Only checking if bounding area intersects with "feet"
-        overlapParams.FilterType = Enum.RaycastFilterType.Whitelist
-
-        local spawnCandidates = table.create(10)
-        for _, item in next, Map:GetDescendants() do
-            if not item:IsA("BasePart") or (item.Position - characterPosition).Magnitude > 10 then
-                continue
-            end
-
-            -- If the part is flipped upside down, that is a problem, thus there is a check here
-            local facingUpVector
-            if item.CFrame.UpVector:Dot(Vector3.yAxis) >= 0 then facingUpVector = item.CFrame.UpVector else facingUpVector = -item.CFrame.UpVector end
-            local candidatesInArea = Workspace:GetPartBoundsInBox(
-                item.CFrame + (facingUpVector * (item.Size.Y/2 + 0.25)),
-                Vector3.new(item.Size.X, 0.5, item.Size.Z),
-                overlapParams
-            )
-            for _, candidate in next, candidatesInArea do
-                if candidate == dummyPart then
-                    table.insert(spawnCandidates, item)
+    for _, part in ipairs(parts) do
+        if part.Name == 'Spawn' and part.Parent == Map and not part:IsDescendantOf(NewMap) then
+            if part.CanCollide and part.Transparency >= 0.8 then
+                spawnPart = part
+                break
+            elseif not part.CanCollide then
+                spawnPart = part
+                local partY = part.Position.Y
+                if partY < lowestY then
+                    lowestY = partY
                 end
-            end
-        end
-
-        dummyPart:Destroy()
-
-        if #spawnCandidates >= 1 then
-            -- Prioritize invisible spawn parts parented to the map
-            for _, spawnCandidate in next, spawnCandidates do
-                if spawnCandidate.CanCollide and (spawnCandidate.Transparency >= 0.8 or spawnCandidate.Parent == map) then
-                    return spawnCandidate
-                end
-            end
-            -- Second pass: only needs to be CanCollide
-            for _, spawnCandidate in next, spawnCandidates do
-                if spawnCandidate.CanCollide then
-                    return spawnCandidate
-                end
-            end
-            -- Fall back to first in list
-            return spawnCandidates[1]
-        else
-            error("Failed to find spawn part!")
-        end
-end)()
-LP.Character.HumanoidRootPart.CFrame = NewC(TAS[3].CCFrame[1], TAS[3].CCFrame[2], TAS[3].CCFrame[3]) * AngC(TAS[3].CCFrame[4], TAS[3].CCFrame[5], TAS[3].CCFrame[6]) + NewV(Spawn.Position.X, Spawn.Position.Y - 1000, Spawn.Position.Z)
-LP.Character.HumanoidRootPart.Velocity = NewV(TAS[3].VVelocity[1], TAS[3].VVelocity[2], TAS[3].VVelocity[3])
-Workspace.CurrentCamera.CFrame = NewC(TAS[3].CCameraCFrame[1], TAS[3].CCameraCFrame[2], TAS[3].CCameraCFrame[3]) * AngC(TAS[3].CCameraCFrame[4], TAS[3].CCameraCFrame[5], TAS[3].CCameraCFrame[6]) + NewV(Spawn.Position.X, Spawn.Position.Y - 1000, Spawn.Position.Z)
-
-game:GetService("ReplicatedStorage").Remote.StartClientMapTimer.OnClientEvent:Wait()
-local TimeStart = os.clock()
-CLMAIN.newAlert('TAS Running..')
-PlayAnim = Animate.playAnimation
-Animate.playAnimation = function()end
-
-for _, v in next, Map:GetDescendants() do
-    if v.Name == 'ButtonIcon' then
-        local buttonPart = v.Parent.Parent:FindFirstChildOfClass('Part')
-        if buttonPart ~= nil then
-            buttonPart.Size = Vector3.new(6,6,6)
-            if debugmode == true then
-                buttonPart.Color = Color3.new(0,0,1)
-                buttonPart.Transparency = 0
             end
         end
     end
+
+    if spawnPart == nil then
+        error("Failed to find spawn part!")
+    end
+
+    local spawnPosition = spawnPart.Position
+    return spawnPosition.X, lowestY or spawnPosition.Y, spawnPosition.Z
 end
 
-local RayParts = Instance.new('Model')
+local spawnX, spawnY, spawnZ = FindSpawnPart()
+local characterCFrame = CFrame_new(TAS[3].CCFrame[1], TAS[3].CCFrame[2], TAS[3].CCFrame[3])
+    * CFrame_fromEulerAnglesXYZ(TAS[3].CCFrame[4], TAS[3].CCFrame[5], TAS[3].CCFrame[6])
+    + Vector3_new(spawnX, spawnY - 1000, spawnZ)
+
+LP.Character.HumanoidRootPart.CFrame = characterCFrame
+LP.Character.HumanoidRootPart.Velocity = Vector3_new(TAS[3].VVelocity[1], TAS[3].
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local RS = game:GetService("RunService")
+local LP = game:GetService("Players").LocalPlayer
+
+local Map = Workspace.Multiplayer.Map
+local Spawn = Map.Settings["_GameSpawnLocation"].Value
+
+local CLMAIN = require(ReplicatedStorage.Modules.Client.Main)
+local Animate = require(ReplicatedStorage.Modules.Client.Animate)
+local PlayAnim = Animate.playAnimation
+Animate.playAnimation = function() end
+
+local debugmode = true
+local Mirrored = false
+
+local function NewV(x, y, z)
+    return Vector3.new(x, y, z)
+end
+
+local function NewC(x, y, z)
+    return CFrame.new(x, y, z)
+end
+
+local function AngC(x, y, z)
+    return CFrame.Angles(x, y, z)
+end
+
+local function MakeRayVisible(ray, color)
+    local midpoint = ray.Origin + ray.Direction / 2
+    local part = Instance.new("Part")
+    part.CanCollide = false
+    part.CanTouch = false
+    part.Parent = RayParts
+    part.Anchored = true
+    part.CFrame = CFrame.new(midpoint, ray.Origin)
+    part.Size = Vector3.new(0.05, 0.05, ray.Direction.Magnitude)
+    part.Material = Enum.Material.Neon
+    part.Color = color
+    return part
+end
+
+local function GetDescendantsWithName(root, name)
+    local descendants = root:GetDescendants()
+    local matchingDescendants = {}
+    local numMatchingDescendants = 0
+    for i = 1, #descendants do
+        local descendant = descendants[i]
+        if descendant.Name == name then
+            numMatchingDescendants = numMatchingDescendants + 1
+            matchingDescendants[numMatchingDescendants] = descendant
+        end
+    end
+    return matchingDescendants
+end
+
+local function SetButtonPartSize(buttonPart)
+    if buttonPart == nil then
+        return
+    end
+    buttonPart.Size = Vector3.new(6, 6, 6)
+    if debugmode then
+        buttonPart.Color = Color3.new(0, 0, 1)
+        buttonPart.Transparency = 0
+    end
+end
+
+local RayParts = Instance.new("Model")
 RayParts.Name = "RayParts"
 RayParts.Parent = Workspace
-    local radius = 0.05
-    local function MakeRayVisible(ray,color)
-        local midpoint = ray.Origin + ray.Direction/2
-
-        local part = Instance.new("Part")
-        part.CanCollide = false
-        part.CanTouch = false
-        part.Parent = RayParts
-        part.Anchored = true
-        part.CFrame = CFrame.new(midpoint, ray.Origin)
-        part.Size = Vector3.new(radius,radius, ray.Direction.Magnitude)
-
-        part.Material = Enum.Material.Neon
-        part.Color = color
-
-        return part
-    end
-
 
 local Offset = Spawn.Position - NewV(0, 1000, 0)
 local DiffAnim = 0
 local OldFrame = 3
 
-
-
-local Loop
-local Death
-Death = LP.Character.Humanoid.Changed:Connect(function(Change)
-    if Change == "Health" and LP.Character.Humanoid.Health == 0 then
-        Death:Disconnect()
-        Loop:Disconnect()
-        RayParts:Destroy()
-        CLMAIN.newAlert('Player Died.',Color3.new(1,0,0))
-    end
-end)
-Loop = RS.Heartbeat:connect(function(DeltaTime)
-    local NewFrame = #TAS
-    local Divider = OldFrame + 60
-    if Divider < NewFrame then
-        NewFrame = Divider
-    end
-    for i = OldFrame, NewFrame do
-        if (os.clock() - TimeStart) < TAS[i].time then
-            continue
-        elseif i >= #TAS then
-            Death:Disconnect()
-            Loop:Disconnect()
-            RayParts:Destroy()
-            Animate.playAnimation = PlayAnim
-            CLMAIN.newAlert('TAS Run Finished!',Color3.new(0,1,0))
-            CLMAIN.newAlert('TAS Player By Tomato',Color3.new(0,1,0))
-        elseif (os.clock() - TimeStart) >= TAS[i].time then
-            OldFrame = i
-            local CF = TAS[i].CCFrame
-            local CCF = TAS[i].CCameraCFrame
-            local VV = TAS[i].VVelocity
-            if Mirrored == true then
-                local nCF = CF
-                CF[1] = nCF[1]
-                CF[2] = nCF[2]
-                CF[3] = -nCF[3]
-                CF[4] = nCF[4]
-                CF[5] = nCF[5]
-                CF[6] = -nCF[6]
-                VV[3] = -VV[3]
-                CCF[3] = -CCF[3]
-            end
-            local CA = TAS[i].AAnimation
-            LP.Character.HumanoidRootPart.CFrame = NewC(CF[1], CF[2], CF[3]) * AngC(CF[4], CF[5], CF[6]) + Offset
-            LP.Character.HumanoidRootPart.Velocity = NewV(VV[1], VV[2], VV[3])
-            Workspace.CurrentCamera.CFrame = NewC(CCF[1], CCF[2], CCF[3]) * AngC(CCF[4], CCF[5], CCF[6]) + Offset
-            if TAS[i].AAnimationChanged > DiffAnim then
-                if CA[1] == "walk" then
-                    PlayAnim(CA[1], CA[2], LP.Character.Humanoid)
-                    DiffAnim = TAS[i].AAnimationChanged
-                    Animate.setAnimationSpeed(0.76)
-                elseif CA[1] == "climb" then
-                else
-                    PlayAnim(CA[1], CA[2], LP.Character.Humanoid)
-                    DiffAnim = TAS[i].AAnimationChanged
-                end
-            end
-        end
-    end
-end)
-
-if debugmode == true then
+local TAS = {}
+local function LoadTAS()
+    local remoteFunction = ReplicatedStorage.RemoteFunction.StartTAS
+    TAS = remoteFunction:InvokeServer()
     for i = 1, #TAS do
         local function ToCFrame(CF)
             return NewC(CF[1], CF[2], CF[3]) * AngC(CF[4], CF[5], CF[6]) + Offset
