@@ -35,13 +35,13 @@ Alert("TAS Loaded!")
 -- Get the Map game object from the Multiplayer
 local Map = Multi.Map
 
--- Check if the _MirrorMap property exists in the Map's Settings object
-if Map.Settings:FindFirstChild("_MirrorMap") then
+-- Check if the _MirrorMap property exists in the Map's Settings object and it is set to true
+if Map.Settings:FindFirstChild("_MirrorMap") and Map.Settings._MirrorMap.Value == true then
     -- If it does, then notify that the map is mirrored and set Mirrored to true
     Alert('Map is mirrored, TAS will be played mirrored!')
     Mirrored = true
 else
-    -- If it doesn't, then notify that the map is not mirrored and set Mirrored to false
+    -- If it doesn't or it is set to false, then notify that the map is not mirrored and set Mirrored to false
     Alert('Map is not Mirrored.')
     Mirrored = false
 end
