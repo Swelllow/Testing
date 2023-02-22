@@ -1,4 +1,4 @@
-getgenv().Mirrored = false
+    getgenv().Mirrored = false
 local NewV = Vector3.new
 local NewC = CFrame.new
 local AngC = CFrame.fromEulerAnglesXYZ
@@ -207,5 +207,3 @@ if debugmode == true then
         MakeRayVisible(ray,Color3.new(1,0,0))
     end
 end
-
- game:GetService("Workspace").Multiplayer.Map.Settings["_MirrorMap"]
