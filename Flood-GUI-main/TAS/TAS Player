@@ -1,4 +1,3 @@
-getgenv().Mirrored = false
 local NewV = Vector3.new
 local NewC = CFrame.new
 local AngC = CFrame.fromEulerAnglesXYZ
@@ -10,18 +9,16 @@ local wait = task.wait
 
 --IMPORTANT
 local CLMAIN = getsenv(LP.PlayerScripts.CL_MAIN_GameScript)
-CLMAIN.newAlert("TAS Player Starteds.")
+CLMAIN.newAlert("TAS Player Started.")
 local Animate = getsenv(LP.Character.Animate)
 local RunName = Multi:WaitForChild('NewMap'):WaitForChild('Settings'):WaitForChild('MapName').Value
 local TAS = game:GetService("HttpService"):JSONDecode(readfile(RunName .. ".json"))
-CLMAIN.newAlert("TAS Loaded!")
+CLMAIN.newAlert("TAS Loadeds!")
 local Map = Multi:WaitForChild("Map")
-if Map:WaitForChild('Settings'):FindFirstChild("_MirrorMap") == nil then -- check if _MirrorMap is not present
-CLMAIN.newAlert('Map is not Mirrored.')
-Mirrored = false
-else
-CLMAIN.newAlert('Map is mirrored, TAS will be played mirrored!')
-Mirrored = true
+local Mirrored = false
+if Map:WaitForChild('Settings'):FindFirstChild("_MirrorMap") then
+    CLMAIN.newAlert('Map is mirrored, TAS will be played mirrored!')
+    Mirrored = true
 end
 
 local Spawn = (function() -- this whole function was made by Epix
