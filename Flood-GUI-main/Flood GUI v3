@@ -304,7 +304,7 @@ task.spawn(function()
 		while task.wait(1) do
 			local S,r = pcall(function()
 				if getgenv().play ~= false then
-					loadstring(game:HttpGet('https://raw.githubusercontent.com/ImMejor35/Flood-GUI/main/TAS/TAS%20Player'))
+					loadstring(game:HttpGet('https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Player'))
 					"TAS Player Fixed By Tomato with help from Epix"
 				end
 			end)
@@ -460,7 +460,7 @@ tas:NewButton("Create-TAS", "Create a TAS, Press then enter lift.", function()
 	ButtonStuff()
 end)
 tas:NewButton("Run-TAS", "Press then enter lift!", function()
-	loadstring(game:HttpGet('https://raw.githubusercontent.com/ImMejor35/Flood-GUI/main/TAS/TAS%20Player'))
+	loadstring(game:HttpGet('https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Player'))
 	"TAS Player Fixed By Tomato with help from Epix"
 end)
 
