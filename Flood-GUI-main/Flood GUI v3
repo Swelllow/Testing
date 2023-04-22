@@ -152,74 +152,20 @@ local function tween(pos)
 	return toof
 end
 
-
-getgenv().active = false
-task.spawn(function()
-	while wait(1) do
-		local function oof()
-			print(game.Workspace.Multiplayer:WaitForChild("Map",9e9).Name)
-			wait()
-			Map = workspace.Multiplayer:WaitForChild("Map",9e9)
-			for i, v in pairs(Map:GetDescendants()) do
-				if v.Name == "Handle" then
-					v:Destroy()
-				end
-			end
-			if Map:FindFirstChild("Settings") ~= nil then
-				print(Map.Settings.MapName.Value)
-			end
-			if Map:FindFirstChild("ExitRegion", true) then
-				local oos = tween(Map:FindFirstChild("ExitRegion", true).Position, Map:FindFirstChild("ExitRegion", true).CFrame)
-				oos.Completed:wait()
-				wait()
-				Map:FindFirstChild("ExitRegion", true):Destroy()
-				if getgenv().active == true then
-					return
-				end
-			end
-			for i, v in pairs(Map:GetDescendants()) do
-				if v:IsA("Part") and v:FindFirstChild("TouchInterest") ~= nil and v.Parent ~= nil then
-					local toof = tween(v.Position, v.CFrame)
-					toof.Completed:wait()
-					wait()
-					v:Destroy()
-				end
-			end
-		end
-		if getgenv().active == true then
-			oof()
-			if Map:FindFirstChild("ExitRegion", true) == nil then
-				repeat
-					wait()
-				until game.Workspace.Multiplayer:WaitForChild("OldMap")
-				game.Players.LocalPlayer.Character.Humanoid.Health = 0
-				game.Players.LocalPlayer.CharacterAdded:Wait()
-				wait(.1)
-				game:GetService("ReplicatedStorage").Remote.AddedWaiting:FireServer(-game:GetService("ReplicatedStorage").Remote.ReqPasskey:InvokeServer())
-				wait(.3)
-				for i, v in pairs(getconnections(game:GetService("Players").LocalPlayer.PlayerGui.GameGui.Waiting.UI.Content.Buttons.MapVote.MouseButton1Click)) do
-					v:Fire()
-				end
-			end
-		else
-			wait(1)
-		end
-	end
-end)
 local UIS = game:GetService'UserInputService'
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 local colors = {
-	SchemeColor = Color3.fromRGB(0, 100, 255),
+    SchemeColor = Color3.fromRGB(0, 100, 255),
 	Background = Color3.fromRGB(40, 40, 40),
 	Header = Color3.fromRGB(30, 30, 30),
 	TextColor = Color3.fromRGB(255, 255, 255),
 	ElementColor = Color3.fromRGB(60, 60, 60)
 }
-local Window = Library.CreateLib("Flood GUI v3 | By Exploiter", colors)
+local Window = Library.CreateLib("Flood GUI v3", colors)
 local a = Window:NewTab("Auto")
 local l = Window:NewTab("Local-Player")
 local b = Window:NewTab("Blatant")
-local t = Window:NewTab("TAS")
+local t = Window:NewTab("TAS (Broken)")
 local k = Window:NewTab("Other")
 local c = Window:NewTab("Credits")
 local auto = a:NewSection("Auto")
@@ -296,63 +242,111 @@ blatant:NewButton("Lag Server", "Equip buddy then press", function()
 		game:GetService("ReplicatedStorage").Remote.ConfirmItem:FireServer(key, 40)
 	end
 end)
-auto:NewToggle("Auto-Play [Working]", "Requires TAS files", function(t)
+local camera = game.Workspace.CurrentCamera
+local targetPosition = Vector3.new(-25.5, -144.3449249267578, 138.50001525878906)
+local play = false
+local useCamera = false
+
+local camera = game.Workspace.CurrentCamera
+
+-- Define the target position
+local targetPosition = Vector3.new(-25.5, -144.3449249267578, 138.50001525878906)
+
+auto:NewToggle("Auto-Play [Working]", "Will auto-play maps with a TAS! (Requires TAS files)", function(t)
 	getgenv().play = t
 end)
-getgenv().play = false
+
+auto:NewToggle("Camera", "Constantly looks at elevator!", function()
+	getgenv().camera = not getgenv().camera
+end)
+
+getgenv().camera = false
 task.spawn(function()
-		while task.wait(1) do
-			local S,r = pcall(function()
-				if getgenv().play ~= false then
-					loadstring(game:HttpGet('https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Player'))
-					"TAS Player Fixed By Tomato with help from Epix"
-				end
-			end)
-			if S ~= true then
-				print(r)
-			end
+	while task.wait() do
+		if getgenv().camera then
+			local newLookVector = (targetPosition - camera.CFrame.p).Unit
+			camera.CFrame = CFrame.new(camera.CFrame.p, camera.CFrame.p + newLookVector)
 		end
+	end
 end)
+
+local player = game.Players.LocalPlayer
+local character = player.Character
+local camera = workspace.CurrentCamera
+
+local autoWalkEnabled = false
+
+auto:NewToggle("Auto-Walk", "Will automatically walk forward for you!", function()
+	autoWalkEnabled = not autoWalkEnabled
+	if autoWalkEnabled then
+		spawn(function()
+			while autoWalkEnabled do
+				if character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
+					local direction = camera.CFrame.lookVector
+					local targetPos = character.HumanoidRootPart.Position + direction * 2
+					character.Humanoid:MoveTo(targetPos)
+				end
+				wait()
+				character = player.Character
+			end
+		end)
+	end
+end)
+
+getgenv().play = false
 getgenv().infjump = false
-blatant:NewKeybind("Infinite Jump", "Jump while freefalling!", Enum.KeyCode.M, function(t)
-	infjump = not infjump
+getgenv().oof = false
+
+task.spawn(function()
+	while task.wait(1) do
+		local S,r = pcall(function()
+			if getgenv().play then
+				loadstring(game:HttpGet('https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Player'))
+				"TAS Player Fixed By Tomato with help from Epix"
+			end
+		end)
+		if S ~= true then
+			print(r)
+		end
+	end
 end)
+
+blatant:NewKeybind("Infinite Jump", "Jump while freefalling!", Enum.KeyCode.M, function(t)
+	getgenv().infjump = t
+end)
+
 UIS.InputBegan:connect(function(UserInput,Typed)
-	if infjump == true and UserInput.KeyCode == Enum.KeyCode.Space or UserInput.KeyCode == Enum.KeyCode.ButtonA and not Typed then
+	if getgenv().infjump and UserInput.KeyCode == Enum.KeyCode.Space or UserInput.KeyCode == Enum.KeyCode.ButtonA and not Typed then
 		lp.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 	end
 end)
-auto:NewToggle("Auto-Farm [DISCONTINUED]", "Automatically wins for you!", function(t)
-	getgenv().active = t
-end)
-auto:NewToggle("Auto-Vote", "Automatically votes for you!", function(t)
+
+auto:NewToggle("Auto-Vote", "Automatically votes! (Will spend coins)", function(t)
 	getgenv().oof = t
 end)
-auto:NewButton("Get TAS files", "Downloads Required TAS files!", function()
-	print("Starting downloads..")
-	for i, v in pairs(maps) do
-		print("-------------------------------------------------")
-		local map = string.gsub(v, " ", "%%20")
-		local su = false -- isfile(v..".json")
-		if su == true then
-			clmain.newAlert(v.." TAS file already exists!",Color3.fromRGB(50,100,255))
-		else
-			local s, r = pcall(function()
-				local tas = game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS%20FILES/"..map..".json")
-				writefile(v..".json", minfile(tas),true)
-			end)
-			if s then
-				clmain.newAlert("Downloaded "..v.." TAS file succesfully!",Color3.fromRGB(0,255,0))
-			else
-				clmain.newAlert("Failed to download "..v.." TAS file. :(",Color3.fromRGB(255,0,0))
-			end
-		end
-		task.wait()
-	end
-	clmain.newAlert("Finished Downloading TAS files")
-end)
-tas:NewButton("Rejoin", "Rejoin game so you can create another TAS", function()
-	game:GetService("TeleportService"):Teleport(game:GetService("Players").LocalPlayer)
+
+auto:NewButton("Get TAS files", "Downloads TAS files!", function()
+    print("Starting downloads..")
+    for i, v in pairs(maps) do
+        print("-------------------------------------------------")
+        local map = string.gsub(v, " ", "%%20")
+        local su = false -- isfile(v..".json")
+        if su == true then
+            clmain.newAlert(v.." TAS file already exists!",Color3.fromRGB(50,100,255))
+        else
+            local s, r = pcall(function()
+                local tas = game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS%20FILES/"..map..".json")
+                writefile(v..".json", minfile(tas),true)
+            end)
+            if s then
+                clmain.newAlert("Downloaded "..v.." TAS file succesfully!",Color3.fromRGB(0,255,0))
+            else
+                clmain.newAlert("Failed to download "..v.." TAS file. :(",Color3.fromRGB(255,0,0))
+            end
+        end
+        task.wait()
+    end
+    clmain.newAlert("Finished Downloading TAS files")
 end)
 
 tas:NewButton('Fix Create-TAS', 'Fix', function()
@@ -494,6 +488,7 @@ tas:NewToggle("Auto-Leave", "Automatically leaves when player joins!", function(
 	getgenv().autoleave = t
 end)
 credits:NewLabel("New Anti-Kick by AltLexon#6917")
+credits:NewLabel("Auto-Walk & Camera by Swelllow")
 credits:NewLabel("TAS script by Voiz#5668")
 credits:NewLabel("TAS File Minifier by iaan#8193")
 credits:NewLabel("Everything else by Tomato")
