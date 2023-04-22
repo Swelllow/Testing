@@ -199,6 +199,38 @@ end)
 loc:NewSlider("JumpPower", "Change your jumppower!", 200, 50, function(t)
 	game.Players.LocalPlayer.Character.Humanoid.JumpPower = t
 end)
+loc:NewKeybind("Vip Emote", "Activates Vip emote!", Enum.KeyCode.V, function()
+    local character = game:GetService("Players").LocalPlayer.Character
+    local humanoid = character:WaitForChild("Humanoid")
+
+    local animation = Instance.new("Animation")
+    animation.AnimationId = "rbxassetid://1584520816"
+
+    local emoteAnimationTrack = humanoid:LoadAnimation(animation)
+
+    game:GetService("UserInputService").InputBegan:Connect(function(input)
+        if input.KeyCode == Enum.KeyCode.V then
+            emoteAnimationTrack:Play()
+            wait()
+        end
+        if input.KeyCode == Enum.KeyCode.W then
+            emoteAnimationTrack:Stop()
+            wait()
+        end
+        if input.KeyCode == Enum.KeyCode.A then
+            emoteAnimationTrack:Stop()
+            wait()
+        end
+        if input.KeyCode == Enum.KeyCode.S then
+            emoteAnimationTrack:Stop()
+            wait()
+        end
+        if input.KeyCode == Enum.KeyCode.D then
+            emoteAnimationTrack:Stop()
+            wait()
+        end
+    end)
+end)
 
 local save = getsenv(game:GetService("Players").LocalPlayer.PlayerScripts["CL_MAIN_GameScript"]).takeAir
 getgenv().godmode = false
@@ -277,21 +309,27 @@ end)
 
 local autoWalkEnabled = false
 
+local function autoWalk()
+    while autoWalkEnabled do
+        local character = player.Character
+        if character and character:FindFirstChild("Humanoid") then
+            local direction = camera.CFrame.lookVector
+            local targetPos = character.HumanoidRootPart.Position + direction * 2
+            character.Humanoid:MoveTo(targetPos)
+        end
+        wait()
+    end
+end
+
 auto:NewToggle("Auto-Walk", "Will automatically walk forward for you!", function()
     autoWalkEnabled = not autoWalkEnabled
     if autoWalkEnabled then
-        spawn(function()
-            while autoWalkEnabled do
-                local character = player.Character
-                if character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
-                    local direction = camera.CFrame.lookVector
-                    local targetPos = character.HumanoidRootPart.Position + direction * 2
-                    character.Humanoid:MoveTo(targetPos)
-                end
-                wait()
-            end
-        end)
+        spawn(autoWalk)
     end
+end)
+
+player.CharacterAdded:Connect(function(character)
+    autoWalk()
 end)
 
 getgenv().play = false
@@ -312,14 +350,18 @@ task.spawn(function()
 	end
 end)
 
-blatant:NewKeybind("Infinite Jump", "Jump while freefalling!", Enum.KeyCode.M, function(t)
-	getgenv().infjump = t
+local infJumpEnabled = false
+
+blatant:NewToggle("Infinite Jump", "Jump while freefalling!", function()
+    infJumpEnabled = not infJumpEnabled
 end)
 
-UIS.InputBegan:connect(function(UserInput,Typed)
-	if getgenv().infjump and UserInput.KeyCode == Enum.KeyCode.Space or UserInput.KeyCode == Enum.KeyCode.ButtonA and not Typed then
-		lp.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-	end
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessedEvent)
+    if infJumpEnabled and not gameProcessedEvent then
+        if input.KeyCode == Enum.KeyCode.Space then
+            lp.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
 end)
 
 auto:NewToggle("Auto-Vote", "Automatically votes! (Will spend coins)", function(t)
@@ -489,7 +531,7 @@ tas:NewToggle("Auto-Leave", "Automatically leaves when player joins!", function(
 	getgenv().autoleave = t
 end)
 credits:NewLabel("New Anti-Kick by AltLexon#6917")
-credits:NewLabel("Auto-Walk & Camera by Swelllow")
+credits:NewLabel("Auto-Walk, Vip Emote & Camera by Swelllow")
 credits:NewLabel("TAS script by Voiz#5668")
 credits:NewLabel("TAS File Minifier by iaan#8193")
 credits:NewLabel("Everything else by Tomato")
