@@ -256,41 +256,42 @@ auto:NewToggle("Auto-Play [Working]", "Will auto-play maps with a TAS! (Requires
 	getgenv().play = t
 end)
 
-auto:NewToggle("Camera", "Constantly looks at elevator!", function()
-	getgenv().camera = not getgenv().camera
-end)
-
-getgenv().camera = false
-task.spawn(function()
-	while task.wait() do
-		if getgenv().camera then
-			local newLookVector = (targetPosition - camera.CFrame.p).Unit
-			camera.CFrame = CFrame.new(camera.CFrame.p, camera.CFrame.p + newLookVector)
-		end
-	end
-end)
-
 local player = game.Players.LocalPlayer
 local character = player.Character
 local camera = workspace.CurrentCamera
 
+getgenv().camera = false
+
+task.spawn(function()
+    while task.wait() do
+        if getgenv().camera then
+            local newLookVector = (targetPosition - camera.CFrame.p).Unit
+            camera.CFrame = CFrame.new(camera.CFrame.p, camera.CFrame.p + newLookVector)
+        end
+    end
+end)
+
+auto:NewToggle("Camera", "Constantly looks at elevator!", function()
+    getgenv().camera = not getgenv().camera
+end)
+
 local autoWalkEnabled = false
 
 auto:NewToggle("Auto-Walk", "Will automatically walk forward for you!", function()
-	autoWalkEnabled = not autoWalkEnabled
-	if autoWalkEnabled then
-		spawn(function()
-			while autoWalkEnabled do
-				if character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
-					local direction = camera.CFrame.lookVector
-					local targetPos = character.HumanoidRootPart.Position + direction * 2
-					character.Humanoid:MoveTo(targetPos)
-				end
-				wait()
-				character = player.Character
-			end
-		end)
-	end
+    autoWalkEnabled = not autoWalkEnabled
+    if autoWalkEnabled then
+        spawn(function()
+            while autoWalkEnabled do
+                local character = player.Character
+                if character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
+                    local direction = camera.CFrame.lookVector
+                    local targetPos = character.HumanoidRootPart.Position + direction * 2
+                    character.Humanoid:MoveTo(targetPos)
+                end
+                wait()
+            end
+        end)
+    end
 end)
 
 getgenv().play = false
