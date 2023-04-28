@@ -254,20 +254,29 @@ blatant:NewKeybind("Infinite Air", "Infinite Air/God Mode", Enum.KeyCode.R, func
 		getgenv().godmode = true
 	end
 end)
-getgenv().noclip = false
-blatant:NewKeybind("Noclip", "Walk through some walls!", Enum.KeyCode.G, function()
-	if getgenv().noclip ~= false then
-		lp.Character:WaitForChild("Torso").CanCollide = getgenv().noclip
-		lp.Character:WaitForChild("HumanoidRootPart").CanCollide = getgenv().noclip
-		clmain.newAlert("Noclip Disabled!", Color3.fromRGB(255, 0, 0))
-		getgenv().noclip = false
-	else
-		lp.Character:WaitForChild("Torso").CanCollide = getgenv().noclip
-		lp.Character:WaitForChild("HumanoidRootPart").CanCollide = getgenv().noclip
-		clmain.newAlert("Noclip Enabled!", Color3.fromRGB(0, 255, 0))
-		getgenv().noclip = true
-	end
+
+local lp = game:GetService("Players").LocalPlayer
+local noclipEnabled = false
+
+game:GetService("RunService").Stepped:Connect(function()
+    if noclipEnabled and lp.Character then
+        for _, part in pairs(lp.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
 end)
+
+blatant:NewKeybind("Noclip", "Walk through some walls!", Enum.KeyCode.G, function()
+    noclipEnabled = not noclipEnabled
+    if noclipEnabled then
+        clmain.newAlert("Noclip Enabled!", Color3.fromRGB(0, 255, 0))
+    else
+        clmain.newAlert("Noclip Disabled!", Color3.fromRGB(255, 0, 0))
+    end
+end)
+
 blatant:NewButton("Lag Server", "Equip buddy then press", function()
 	local key = -game:GetService("ReplicatedStorage").Remote.ReqPasskey:InvokeServer()
 	for i = 1, 190, 1 do
@@ -335,6 +344,37 @@ end)
 getgenv().play = false
 getgenv().infjump = false
 getgenv().oof = false
+
+local vuEnabled = false
+
+auto:NewToggle("Anti-Afk", "Prevents AFK kick", function(t)
+    vuEnabled = t
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if vuEnabled then
+            local vu = game:GetService("VirtualUser")
+            vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+            wait(1)
+            vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        end
+    end
+end)
+
+local autoPlayEnabled = false
+
+auto:NewToggle("Anti-Fog", "Will automatically remove the fog!", function(t)
+    autoPlayEnabled = t
+    while autoPlayEnabled do
+        game.Lighting.FogEnd = 100000
+        game.Lighting.FogStart = 0
+        game.Lighting.ClockTime = 14
+        game.Lighting.Brightness = 2
+        game.Lighting.GlobalShadows = false
+        wait(1) -- Wait for one second before running the loop again
+    end
+end)
 
 task.spawn(function()
 	while task.wait(1) do
@@ -531,7 +571,6 @@ tas:NewToggle("Auto-Leave", "Automatically leaves when player joins!", function(
 	getgenv().autoleave = t
 end)
 credits:NewLabel("New Anti-Kick by AltLexon#6917")
-credits:NewLabel("Auto-Walk, Vip Emote & Camera by Swelllow")
 credits:NewLabel("TAS script by Voiz#5668")
 credits:NewLabel("TAS File Minifier by iaan#8193")
 credits:NewLabel("Everything else by Tomato")
