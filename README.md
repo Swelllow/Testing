@@ -1,1 +1,1 @@
-I will be adding new maps to the Tas Files
+I will be updating the script to the best of my capabilities.
