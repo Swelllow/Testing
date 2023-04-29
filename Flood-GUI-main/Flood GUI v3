@@ -347,18 +347,14 @@ getgenv().oof = false
 
 local vuEnabled = false
 
-auto:NewToggle("Anti-Afk", "Prevents AFK kick", function(t)
-    vuEnabled = t
-end)
+local VirtualUser = game:GetService("VirtualUser")
 
-task.spawn(function()
-    while task.wait() do
-        if vuEnabled then
-            local vu = game:GetService("VirtualUser")
-            vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-            wait(1)
-            vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-        end
+auto:NewToggle("Anti-Afk", "Prevents AFK kick", function(t)
+    if t then
+        game:GetService("Players").LocalPlayer.Idled:connect(function()
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end)
     end
 end)
 
