@@ -542,7 +542,7 @@ Loop = RS.Heartbeat:connect(function(DeltaTime)
     end
     for i = OldFrame, NewFrame do
         if (os.clock() - TimeStart) < TAS[i].time then
-            continue
+            break
         elseif i >= #TAS then
             Death:Disconnect()
             Loop:Disconnect()
@@ -674,7 +674,7 @@ tas:NewButton('Fix Create-TAS', 'Fix', function()
             local spawnCandidates = table.create(10)
             for _, item in next, Map:GetDescendants() do
                 if not item:IsA("BasePart") or (item.Position - characterPosition).Magnitude > 10 then
-                    continue
+                    break
                 end
     
                 -- If the part is flipped upside down, that is a problem, thus there is a check here
