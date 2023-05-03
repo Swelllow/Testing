@@ -373,7 +373,7 @@ auto:NewToggle("Anti-Fog", "Will automatically remove the fog!", function(t)
 end)
 
 task.spawn(function()
-	while task.wait(.25) do
+	while task.wait(.5) do
 		local S,r = pcall(function()
 			if getgenv().play then
 				getgenv().Mirrored = false
