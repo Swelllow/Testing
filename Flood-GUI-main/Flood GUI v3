@@ -199,6 +199,33 @@ end)
 loc:NewSlider("JumpPower", "Change your jumppower!", 200, 50, function(t)
 	game.Players.LocalPlayer.Character.Humanoid.JumpPower = t
 end)
+loc:NewToggle("Teleport on Ctrl+Click ⚠️", "Toggle teleport on Ctrl+Click", function(toggled)
+    TeleportEnabled = toggled
+end)
+
+local UIS = game:GetService("UserInputService")
+local Player = game.Players.LocalPlayer
+local Mouse = Player:GetMouse()
+
+function GetCharacter()
+    return game.Players.LocalPlayer.Character
+end
+
+function Teleport(pos)
+    local Char = GetCharacter()
+    if Char then
+        Char:MoveTo(pos)
+    end
+end
+
+local function InputHandler(input)
+    if TeleportEnabled and input.UserInputType == Enum.UserInputType.MouseButton1 and UIS:IsKeyDown(Enum.KeyCode.LeftControl) then
+        Teleport(Mouse.Hit.p)
+    end
+end
+
+UIS.InputBegan:Connect(InputHandler)
+
 loc:NewKeybind("Vip Emote", "Activates Vip emote!", Enum.KeyCode.V, function()
     local character = game:GetService("Players").LocalPlayer.Character
     local humanoid = character:WaitForChild("Humanoid")
