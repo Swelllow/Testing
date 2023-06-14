@@ -1,77 +1,23 @@
-local maps = {
-    "Lost Woods",
-    "Axiom",
-    "Castle Tides",
-    "Poisonous Valley",
-    "Marred Dreams",
-    "Buried Oasis",
-    "Forsaken Era",
-    "Eerie Peaks",
-    "Polar Industry",
-    "Infiltration",
-    "Cave System",
-    "Flood Island",
-    "Oriental Grove",
-    "Sky Sanctuary",
-    "Decrepit Seas",
-    "Mysterium",
-    "Forgotten Tombs",
-    "Construction Thrill",
-    "Fall Equinox",
-    "Northern Workshop",
-    "Lava Tower",
-    "Crystal Caverns",
-    "Snowy Peaks",
-    "Dark Sci-Forest",
-    "Graveyard Cliffside",
-    "Wild Savannah",
-    "Sedimentary Temple",
-    "Sunken Citadel",
-    "Relic Valley",
-    "Poisonous Forest",
-    "Abandoned Facility",
-    "Familiar Ruins",
-    "Lost Desert",
-    "Gloomy Manor",
-    "Sinking Ship",
-    "Dark Sci-Facility",
-    "Beneath The Ruins", --Broken
-    "Magmatic Mines",
-    "Fallen",
-    "Blue Moon",
-    "Poisonous Chasm",
-    "Ignis Peaks",
-    "Sandswept Ruins",
-    "Satomi Springs",
-    "Mars Stations"
-}
+repeat wait() until game:IsLoaded() or game.Loaded:wait()
+--anticheat bypass all credits to altlexon
+game:GetService("ReplicatedStorage").Remote.ReqCharVars.OnClientInvoke = function()return{}end
 
-local clmain = getsenv(game:GetService("Players").LocalPlayer.PlayerScripts:FindFirstChild("CL_MAIN_GameScript")) or wait()
-local save = clmain.newAlert
-clmain.newAlert = function(text)
-    save(text,nil,nil,'rainbow')
+-- map list extractor
+getgenv().maps = {}
+local script = require(game.ReplicatedStorage.SharedModules.FE2Library)
+for i,v in pairs(script.getOfficialMapData()) do
+	table.insert(maps,v.mapName)
 end
+wait = task.wait
 
-if getrenv().wow and debugmode == false then
-    clmain.newAlert('Already Executed!',Color3.new(1,0,0))
+local clmain = getsenv( game.Players.LocalPlayer.PlayerScripts["CL_MAIN_GameScript"] )
+local save = clmain.newAlert
+if getgenv().wow and debugmode == false then
+	clmain.newAlert('Already Executed!',Color3.new(1,0,0))
     error('Already Executed')
 else
-    getrenv().wow=''
+    getgenv().wow=''
 end
-
-local function loadMaps()
-    for i, map in ipairs(maps) do
-        clmain.newAlert("Loading map " .. map)
-        game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer, Enum.TeleportState.Requested)
-        repeat
-            wait()
-        until game:IsLoaded()
-        clmain.newAlert("Map " .. map .. " loaded")
-        wait(1.5)
-    end
-end
-
-game.Loaded:Connect(loadMaps)
 -- TAS file minifier 
 -- Starting from this line to ending line code was made by ian
 local HttpService = game:GetService("HttpService")
