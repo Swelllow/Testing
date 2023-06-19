@@ -777,8 +777,10 @@ tas:NewToggle("Auto-Leave", "Automatically leaves when player joins!", function(
 	getgenv().autoleave = t
 end)
 credits:NewLabel("New Anti-Kick by AltLexon#6917")
-credits:NewLabel("TAS script by Voiz#5668")
+credits:NewLabel("TAS script by Voiz#5668 and Moz")
 credits:NewLabel("TAS File Minifier by iaan#8193")
+credits:NewLabel("Tas Player by Tomato and Moz")
+credits:NewLabel("Other small things by Moz")
 credits:NewLabel("Everything else by Tomato")
 wait()
 if debugmode == true then
