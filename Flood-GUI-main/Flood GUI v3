@@ -333,7 +333,7 @@ end)
 
 local autoPlayEnabled = false
 
-auto:NewToggle("Anti-Fog", "Will automatically remove the fog!", function(t)
+loc:NewToggle("Anti-Fog", "Will automatically remove the fog!", function(t)
     autoPlayEnabled = t
     while autoPlayEnabled do
         game.Lighting.FogEnd = 100000
