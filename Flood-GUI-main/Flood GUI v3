@@ -359,7 +359,7 @@ local SkipMirroredMaps = {
     ["Oil Outpost"] = true,
     ["Sinister Labyrinth"] = true,
     ["Snowy Stronghold"] = true,
-    ["Choaz Japan"] = true,
+    ["Chaoz Japan"] = true,
     ["Decaying Silo"] = true,
     ["Active Volcanic Mines"] = true
 }
