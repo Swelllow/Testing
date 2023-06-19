@@ -349,7 +349,20 @@ task.spawn(function()
 	while task.wait(.5) do
 		local S,r = pcall(function()
 			if getgenv().play then
-				getgenv().Mirrored = false
+				local Mirrored = false
+local SkipMirroredMaps = {
+    ["Retro Coast"] = true,
+    ["Zemblanity"] = true,
+    ["Shimmering Delta"] = true,
+    ["Northren Mill"] = true,
+    ["Mysterium"] = true,
+    ["Oil Outpost"] = true,
+    ["Sinister Labyrinth"] = true,
+    ["Snowy Stronghold"] = true,
+    ["Choaz Japan"] = true,
+    ["Decaying Silo"] = true,
+    ["Active Volcanic Mines"] = true
+}
 local NewV = Vector3.new
 local NewC = CFrame.new
 local AngC = CFrame.fromEulerAnglesXYZ
@@ -359,7 +372,7 @@ local Multi = Workspace.Multiplayer
 local RS = game:GetService('RunService')
 local wait = task.wait
 
---IMPORTANT
+-- IMPORTANT
 local CLMAIN = getsenv(LP.PlayerScripts.CL_MAIN_GameScript)
 CLMAIN.newAlert("TAS Player Started.")
 local Animate = getsenv(LP.Character.Animate)
@@ -367,12 +380,18 @@ local RunName = Multi:WaitForChild('NewMap'):WaitForChild('Settings'):WaitForChi
 local TAS = game:GetService("HttpService"):JSONDecode(readfile(RunName .. ".json"))
 CLMAIN.newAlert("TAS Loaded!")
 local Map = Multi:WaitForChild("Map")
-if Map:WaitForChild('Settings'):FindFirstChild("_MirrorMap") then
-    CLMAIN.newAlert('Map is not Mirrored.')
-    Mirrored = false
+local mapName = Map:WaitForChild('Settings').MapName.Value
+
+if SkipMirroredMaps[mapName] then
+    CLMAIN.newAlert('Mirrored script skipped for map: ' .. mapName)
 else
-    CLMAIN.newAlert('Map is mirrored, TAS will be played mirrored!')
-    Mirrored = true
+    if Map:WaitForChild('Settings'):FindFirstChild("_MirrorMap") then
+        CLMAIN.newAlert('Map is not mirrored.')
+        Mirrored = false
+    else
+        CLMAIN.newAlert('Map is mirrored, TAS will be played mirrored!')
+        Mirrored = true
+    end
 end
 
 local Spawn = (function() -- this whole function was made by Epix
@@ -531,19 +550,20 @@ Loop = RS.Heartbeat:connect(function(DeltaTime)
             if Mirrored == true then
                 local nCF = CF
                 CF[1] = nCF[1]
-                CF[2] = nCF[2]
-                CF[3] = -nCF[3]
-                CF[4] = nCF[4]
-                CF[5] = nCF[5]
-                CF[6] = -nCF[6]
-                VV[3] = -VV[3]
-                CCF[3] = -CCF[3]
+   		        CF[2] = nCF[2]
+    		    CF[3] = -nCF[3]
+    		    CF[4] = nCF[4]
+    		    CF[5] = nCF[5]
+    		    CF[6] = -nCF[6]
+    		    VV[3] = -VV[3]
+    		    CCF[3] = -CCF[3]
             end
+
             local CA = TAS[i].AAnimation
             LP.Character.HumanoidRootPart.CFrame = NewC(CF[1], CF[2], CF[3]) * AngC(CF[4], CF[5], CF[6]) + Offset
             LP.Character.HumanoidRootPart.Velocity = NewV(VV[1], VV[2], VV[3])
             Workspace.CurrentCamera.CFrame = NewC(CCF[1], CCF[2], CCF[3]) * AngC(CCF[4], CCF[5], CCF[6]) + Offset
-            if TAS[i].AAnimationChanged > DiffAnim then
+            if TAS[i].AAnimation and TAS[i].AAnimationChanged and TAS[i].AAnimationChanged > DiffAnim then
                 if CA[1] == "walk" then
                     PlayAnim(CA[1], CA[2], LP.Character.Humanoid)
                     DiffAnim = TAS[i].AAnimationChanged
