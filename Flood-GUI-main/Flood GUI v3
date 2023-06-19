@@ -717,7 +717,7 @@ tas:NewButton("Create-TAS", "Create a TAS, Press then enter lift.", function()
 		end
 	end)
 	local Fix = coroutine.wrap(function()
-		loadstring(game:HttpGet("https://gist.githubusercontent.com/ExploitOnYt/87466f9b6f9333449c683643e59fdf94/raw/440d5306e1aa87f1ba20e94be005bffe945e0f8a/Tas", true))()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Record%20Fix", true))()
 	end)
         local ButtonStuff = coroutine.wrap(function()
             for i,v in pairs(game.Workspace:WaitForChild("Map"):GetDescendants()) do
