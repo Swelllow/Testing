@@ -71,8 +71,8 @@ local function SetUpMap()
     -- Clone and position the map
     Map = game.Workspace.Multiplayer.Map:Clone()
     Map.Parent = game.Workspace
-    Map:SetPrimaryPartCFrame(CFrame.new(0, 1000, 0) * CFrame.Angles(math.pi, 0, 0)) -- Rotate by 180 degrees along X-axis
-    
+    Map:SetPrimaryPartCFrame(CFrame.new(0, 1000, 0))
+
     -- Destroy the head of the character temporarily
     LocalPlayer.Character.Head:Destroy()
     LocalPlayer.CharacterAdded:Wait()
@@ -90,16 +90,7 @@ local function SetUpMap()
     LocalPlayer.Character.Humanoid.JumpPower = 0
 
     -- Position the character at the start of the map
-    local startPos = CFrame.new(Map.PrimaryPart.Position)
-        + Vector3.new(0, Map.PrimaryPart.Size.Y / 2, 0)
-        + Vector3.new(0, LocalPlayer.Character.HumanoidRootPart.Size.Y / 2, 0)
-        + Vector3.new(0, LocalPlayer.Character["Left Leg"].Size.Y, 0)
-    LocalPlayer.Character.HumanoidRootPart.CFrame = startPos
-
-    -- Wait until the character is properly positioned
-    repeat
-        task.wait()
-    until LocalPlayer.Character.HumanoidRootPart.CFrame == startPos
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(0, 1000, 0))
 
     task.wait(0.5)
 
