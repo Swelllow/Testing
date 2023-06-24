@@ -25,17 +25,32 @@ local function ReturnPlayerInfo()
             Time = tick() - TimeStart - TimePaused,
     }
 end
-
 local function SetPrimaryPart()
-    local mapModel = game.Workspace.Multiplayer.Map
-    local primaryPart = mapModel:FindFirstChildWhichIsA("Part")
-    if primaryPart then
-        mapModel.PrimaryPart = primaryPart
-    else
-        error("Primary part not found in the map model.")
+    local CharacterParts = {}
+    local Character = LocalPlayer.Character
+    local Ray = Ray.new(Character.HumanoidRootPart.Position,Vector3.new(0,-10,0))
+    if game.Workspace.CurrentCamera:FindFirstChild("ShadowPt") then
+        table.insert(CharacterParts,game.Workspace.CurrentCamera.ShadowPt)
+    end
+    for i,v in pairs(game.Players:GetPlayers()) do
+        pcall(function()
+            for j,k in pairs(v.Character:GetChildren()) do
+                if k:IsA("Part") then
+                    table.insert(CharacterParts,k)
+                end
+            end
+        end) 
+    end
+    while true do
+        local hit,pos = game.Workspace:FindPartOnRayWithIgnoreList(Ray,CharacterParts)
+        if hit:IsA("Part") and math.floor(hit.Size.X) == math.floor(hit.Size.Z) then
+            game.Workspace.Multiplayer.Map.PrimaryPart = hit
+            break
+        else
+            table.insert(CharacterParts,hit)
+        end
     end
 end
-
 local function SetUpGui()
     for i,v in pairs(LocalPlayer.PlayerGui.GameGui.HUD.Main.GameStats:GetChildren()) do
         if v:IsA("Frame") then
@@ -56,68 +71,60 @@ local function SetUpGui()
     TimeText.TextXAlignment = Enum.TextXAlignment.Left
     LocalPlayer.PlayerGui.GameGui.Challenges.Visible = false
 end
-
 local function SetUpMap()
     local Map
     local CurrentInfo
 
-    -- Disable character variables request
     function game.ReplicatedStorage.Remote.ReqCharVars.OnClientInvoke()
         return {}
     end
 
     SetPrimaryPart()
 
-    -- Clone and position the map
     Map = game.Workspace.Multiplayer.Map:Clone()
     Map.Parent = game.Workspace
+    Map.PrimaryPart = Map:WaitForChild("PrimaryPart")
     Map:SetPrimaryPartCFrame(CFrame.new(0, 1000, 0))
 
-    -- Destroy the head of the character temporarily
     LocalPlayer.Character.Head:Destroy()
     LocalPlayer.CharacterAdded:Wait()
     LocalPlayer.Character:WaitForChild("Humanoid")
     LocalPlayer.Character:WaitForChild("HumanoidRootPart")
 
-    -- Remove waiting screen
     ReplicatedStorage.Remote.RemoveWaiting:FireServer(Key)
 
-    -- Set initial humanoid properties
     LocalPlayer.Character.Humanoid.WalkSpeed = 0
     LocalPlayer.Character.Humanoid.JumpPower = 0
     task.wait(0.5)
     LocalPlayer.Character.Humanoid.WalkSpeed = 0
     LocalPlayer.Character.Humanoid.JumpPower = 0
 
-    -- Position the character at the start of the map
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(0, 1000, 0))
-
+    LocalPlayer.Character.HumanoidRootPart.CFrame = Map.PrimaryPart.CFrame + Vector3.new(0, Map.PrimaryPart.Size.Y / 2, 0) + Vector3.new(0, LocalPlayer.Character.HumanoidRootPart.Size.Y / 2, 0) + Vector3.new(0, LocalPlayer.Character["Left Leg"].Size.Y, 0)
     task.wait(0.5)
 
-    -- Prepare character for TAS recording
     LocalPlayer.Character.HumanoidRootPart.Anchored = true
     LocalPlayer.Character.Humanoid.WalkSpeed = 20
     LocalPlayer.Character.Humanoid.JumpPower = 50
 
-    -- Insert initial save state
-    table.insert(Savestates, {
-        {
-            CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame,
-            CameraCFrame = game.Workspace.CurrentCamera.CFrame,
-            Velocity = Vector3.new(0, 0, 0),
-            Animation = {"idle", 0},
-            Time = 0
-        }
-    })
+    table.insert(Savestates, {{
+        CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame,
+        CameraCFrame = game.Workspace.CurrentCamera.CFrame,
+        Velocity = Vector3.new(0, 0, 0),
+        Animation = {"idle", 0},
+        Time = 0
+    }})
+
     SetUpGui()
+
     SenvAnimation = getsenv(game.Players.LocalPlayer.Character.Animate)
     PlayAnimation = SenvAnimation.playAnimation
     TimePauseHolder = tick()
     TimeStart = tick()
-    function SenvAnimation.playAnimation(a,b)
+
+    function SenvAnimation.playAnimation(a, b)
         if not Pause then
-            AnimationState = {a,b}
-            PlayAnimation(AnimationState[1],AnimationState[2], LocalPlayer.Character.Humanoid)
+            AnimationState = {a, b}
+            PlayAnimation(AnimationState[1], AnimationState[2], LocalPlayer.Character.Humanoid)
         end
     end
 end
@@ -225,6 +232,8 @@ RunService.Heartbeat:Connect(function()
 end)
 
 SaveRun()
+SetUpMap()
+
 UserInputService.InputBegan:Connect(function(Key,Typing)
     if not Typing then
         Key = Key.KeyCode.Name
