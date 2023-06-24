@@ -90,10 +90,16 @@ local function SetUpMap()
     LocalPlayer.Character.Humanoid.JumpPower = 0
 
     -- Position the character at the start of the map
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Map.PrimaryPart.Position)
+    local startPos = CFrame.new(Map.PrimaryPart.Position)
         + Vector3.new(0, Map.PrimaryPart.Size.Y / 2, 0)
         + Vector3.new(0, LocalPlayer.Character.HumanoidRootPart.Size.Y / 2, 0)
         + Vector3.new(0, LocalPlayer.Character["Left Leg"].Size.Y, 0)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = startPos
+
+    -- Wait until the character is properly positioned
+    repeat
+        task.wait()
+    until LocalPlayer.Character.HumanoidRootPart.CFrame == startPos
 
     task.wait(0.5)
 
