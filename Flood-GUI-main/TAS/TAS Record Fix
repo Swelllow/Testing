@@ -25,32 +25,36 @@ local function ReturnPlayerInfo()
             Time = tick() - TimeStart - TimePaused,
     }
 end
+
 local function SetPrimaryPart()
     local CharacterParts = {}
     local Character = LocalPlayer.Character
-    local Ray = Ray.new(Character.HumanoidRootPart.Position,Vector3.new(0,-10,0))
+    local Ray = Ray.new(Character.HumanoidRootPart.Position, Vector3.new(0, -10, 0))
     if game.Workspace.CurrentCamera:FindFirstChild("ShadowPt") then
-        table.insert(CharacterParts,game.Workspace.CurrentCamera.ShadowPt)
+        table.insert(CharacterParts, game.Workspace.CurrentCamera.ShadowPt)
     end
-    for i,v in pairs(game.Players:GetPlayers()) do
+    for i, v in pairs(game.Players:GetPlayers()) do
         pcall(function()
-            for j,k in pairs(v.Character:GetChildren()) do
-                if k:IsA("Part") then
-                    table.insert(CharacterParts,k)
+            if v.Character then
+                for j, k in pairs(v.Character:GetChildren()) do
+                    if k:IsA("Part") then
+                        table.insert(CharacterParts, k)
+                    end
                 end
             end
-        end) 
+        end)
     end
     while true do
-        local hit,pos = game.Workspace:FindPartOnRayWithIgnoreList(Ray,CharacterParts)
-        if hit:IsA("Part") and math.floor(hit.Size.X) == math.floor(hit.Size.Z) then
+        local hit, pos = game.Workspace:FindPartOnRayWithIgnoreList(Ray, CharacterParts)
+        if hit and hit:IsA("Part") and math.floor(hit.Size.X) == math.floor(hit.Size.Z) then
             game.Workspace.Multiplayer.Map.PrimaryPart = hit
             break
         else
-            table.insert(CharacterParts,hit)
+            table.insert(CharacterParts, hit)
         end
     end
 end
+
 local function SetUpGui()
     for i,v in pairs(LocalPlayer.PlayerGui.GameGui.HUD.Main.GameStats:GetChildren()) do
         if v:IsA("Frame") then
