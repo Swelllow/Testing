@@ -51,6 +51,7 @@ local function SetPrimaryPart()
             break
         else
             table.insert(CharacterParts, hit)
+            Ray = Ray.new(pos, Vector3.new(0, -10, 0)) -- Update the Ray with the new starting position
         end
     end
 end
@@ -145,6 +146,7 @@ local function SetTimeGui()
     for i=1, 1 do if #s < 2 then s = '0' .. s end end
     TimeText.Text = m .. ":" .. s .. ":" .. ms
 end
+
 local function UserPause()
     Pause = not Pause
     if Pause then
@@ -157,6 +159,7 @@ local function UserPause()
         TimePaused = TimePaused + tick() - TimePauseHolder
     end
 end
+
 local function BackSavestate()
     local InfoState = Savestates[#Savestates][#Savestates[#Savestates]]
     PlayerInfo = {}
