@@ -394,77 +394,25 @@ else
     end
 end
 
-local Spawn = (function() -- this whole function was made by Epix
-        local Workspace = game:GetService("Workspace")
-        local character = LP.Character
-        local characterPosition = character.HumanoidRootPart.Position -- only need to evaluate this once
+local Spawn = (function() -- new spawn finder by "_tomato." on discord
+	local Spawn = nil
+	
+	local connections = {}
+	for i,v in ipairs(Map:GetChildren()) do
+	    if v.Name == "Part" then
+	        table.insert(connections, v:GetPropertyChangedSignal("Rotation"):Connect(function()
+	            Spawn = v
+	            for i,v in ipairs(connections) do
+	                v:Disconnect()
+	            end
+	        end))
+	    end
+	end
+	repeat task.wait() until Spawn
+	CLMAIN.newAlert("Spawn found!")
+	return Spawn
+    end)()
 
-        -- Get parts that have the character above them
-
-        -- Part that's supposed to represent the character's "feet"
-        local dummyPart = Instance.new("Part")
-        dummyPart.Size = Vector3.one
-        dummyPart.Position = characterPosition - (Vector3.yAxis * 2)
-        dummyPart.Anchored = true
-        dummyPart.CanCollide = false
-        dummyPart.Parent = Workspace
-
-        local overlapParams = OverlapParams.new()
-        overlapParams.FilterDescendantsInstances = {dummyPart} -- Only checking if bounding area intersects with "feet"
-        overlapParams.FilterType = Enum.RaycastFilterType.Whitelist
-
-        local spawnCandidates = table.create(10) -- create an empty table with size 10
-        local numCandidates = 0 -- track the number of candidates added to the table
-
-        -- loop over the parts to find spawn candidates
-        for _, item in next, Map:GetDescendants() do
-          -- check if the item is a valid spawn candidate
-          if item:IsA("BasePart") and (item.Position - characterPosition).Magnitude <= 10 then
-             -- check if the part is flipped upside down
-                local facingUpVector = item.CFrame.UpVector:Dot(Vector3.yAxis) >= 0 and item.CFrame.UpVector or -item.CFrame.UpVector
-
-               -- get the candidates in the area around the part
-               local candidatesInArea = Workspace:GetPartBoundsInBox(
-            item.CFrame + (facingUpVector * (item.Size.Y/2 + 0.25)),
-                   Vector3.new(item.Size.X, 0.5, item.Size.Z),
-                 overlapParams
-               )
-
-              -- add any valid candidates to the table
-             for _, candidate in next, candidatesInArea do
-                    if candidate == dummyPart then
-                        numCandidates = numCandidates + 1
-                      spawnCandidates[numCandidates] = item
-                     break
-                  end
-               end
-           end
-        end
-
-        -- get the spawn candidate from the table
-        if numCandidates >= 1 then
-           -- prioritize invisible spawn parts parented to the map
-           for i = 1, numCandidates do
-               local spawnCandidate = spawnCandidates[i]
-              if spawnCandidate.CanCollide and (spawnCandidate.Transparency >= 0.8 or spawnCandidate.Parent == Map) then
-                  return spawnCandidate
-               end
-          end
-
-           -- second pass: only needs to be CanCollide
-           for i = 1, numCandidates do
-             local spawnCandidate = spawnCandidates[i]
-             if spawnCandidate.CanCollide then
-                 return spawnCandidate
-             end
-         end
-
-         -- fall back to first in list
-           return spawnCandidates[1]
-        else
-          error("Failed to find spawn part!")
-        end
-end)()
 LP.Character.HumanoidRootPart.CFrame = NewC(TAS[3].CCFrame[1], TAS[3].CCFrame[2], TAS[3].CCFrame[3]) * AngC(TAS[3].CCFrame[4], TAS[3].CCFrame[5], TAS[3].CCFrame[6]) + NewV(Spawn.Position.X, Spawn.Position.Y - 1000, Spawn.Position.Z)
 LP.Character.HumanoidRootPart.Velocity = NewV(TAS[3].VVelocity[1], TAS[3].VVelocity[2], TAS[3].VVelocity[3])
 Workspace.CurrentCamera.CFrame = NewC(TAS[3].CCameraCFrame[1], TAS[3].CCameraCFrame[2], TAS[3].CCameraCFrame[3]) * AngC(TAS[3].CCameraCFrame[4], TAS[3].CCameraCFrame[5], TAS[3].CCameraCFrame[6]) + NewV(Spawn.Position.X, Spawn.Position.Y - 1000, Spawn.Position.Z)
