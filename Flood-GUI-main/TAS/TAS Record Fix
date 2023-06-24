@@ -56,6 +56,7 @@ local function SetUpGui()
     TimeText.TextXAlignment = Enum.TextXAlignment.Left
     LocalPlayer.PlayerGui.GameGui.Challenges.Visible = false
 end
+
 local function SetUpMap()
     local Map
     local CurrentInfo
@@ -70,7 +71,7 @@ local function SetUpMap()
     -- Clone and position the map
     Map = game.Workspace.Multiplayer.Map:Clone()
     Map.Parent = game.Workspace
-    Map:SetPrimaryPartCFrame(CFrame.new(0, 1000, 0))
+    Map:SetPrimaryPartCFrame(CFrame.new(0, 1000, 0) * CFrame.Angles(math.pi, 0, 0)) -- Rotate by 180 degrees along X-axis
     
     -- Destroy the head of the character temporarily
     LocalPlayer.Character.Head:Destroy()
@@ -123,6 +124,7 @@ local function SetUpMap()
         end
     end
 end
+
 local function SetTimeGui()
     local TimePlayed = tick() - TimeStart - TimePaused
     local m = math.floor(TimePlayed / 60)
