@@ -71,6 +71,7 @@ local function SetUpGui()
     TimeText.TextXAlignment = Enum.TextXAlignment.Left
     LocalPlayer.PlayerGui.GameGui.Challenges.Visible = false
 end
+
 local function SetUpMap()
     local Map
     local CurrentInfo
@@ -113,6 +114,7 @@ local function SetUpMap()
         end
     end
 end
+
 local function SetTimeGui()
     local TimePlayed = tick() - TimeStart - TimePaused
     local m = math.floor(TimePlayed / 60)
