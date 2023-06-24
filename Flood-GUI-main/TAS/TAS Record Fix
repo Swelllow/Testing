@@ -1,7 +1,3 @@
--- TAS Recorder Fix
-
-print("Started!!!!!1")
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -18,7 +14,6 @@ local SenvAnimation
 local PlayAnimation
 local TimeStart
 local TimeText
-local MapDuplicated = false
 
 local function ReturnPlayerInfo()
     return {
@@ -26,37 +21,45 @@ local function ReturnPlayerInfo()
         CameraCFrame = workspace.CurrentCamera.CFrame,
         Velocity = LocalPlayer.Character.HumanoidRootPart.Velocity,
         Animation = AnimationState,
-        Time = tick() - TimeStart - TimePaused,
+        Time = tick() - TimeStart - TimePaused
     }
 end
 
 local function SetPrimaryPart()
-    local Map = game.Workspace.Multiplayer:WaitForChild("Map")
-    local Spawn = nil
-    local connections = {}
+    local CharacterParts = {}
+    local Character = LocalPlayer.Character
+    local Ray = Ray.new(Character.HumanoidRootPart.Position, Vector3.new(0, -10, 0))
 
-    for i, v in ipairs(Map:GetChildren()) do
-        if v.Name == "Part" then
-            table.insert(connections, v:GetPropertyChangedSignal("Rotation"):Connect(function()
-                Spawn = v
-                for i, v in ipairs(connections) do
-                    v:Disconnect()
-                end
-            end))
-        end
+    if workspace.CurrentCamera:FindFirstChild("ShadowPt") then
+        table.insert(CharacterParts, workspace.CurrentCamera.ShadowPt)
     end
 
-    repeat
-        task.wait()
-    until Spawn
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        pcall(function()
+            for _, part in ipairs(player.Character:GetChildren()) do
+                if part:IsA("Part") then
+                    table.insert(CharacterParts, part)
+                end
+            end
+        end)
+    end
 
-    Map.PrimaryPart = Spawn
+    while true do
+        local hit, pos = workspace:FindPartOnRayWithIgnoreList(Ray, CharacterParts)
+
+        if hit:IsA("Part") and math.floor(hit.Size.X) == math.floor(hit.Size.Z) then
+            workspace.Multiplayer.Map.PrimaryPart = hit
+            break
+        else
+            table.insert(CharacterParts, hit)
+        end
+    end
 end
 
 local function SetUpGui()
-    for i, v in pairs(LocalPlayer.PlayerGui.GameGui.HUD.Main.GameStats:GetChildren()) do
-        if v:IsA("Frame") then
-            v.Visible = false
+    for _, frame in ipairs(LocalPlayer.PlayerGui.GameGui.HUD.Main.GameStats:GetChildren()) do
+        if frame:IsA("Frame") then
+            frame.Visible = false
         end
     end
 
@@ -77,196 +80,210 @@ local function SetUpGui()
 end
 
 local function SetUpMap()
-    local function OnMapDuplicated()
-        MapDuplicated = true
+    local Map
+
+    function game.ReplicatedStorage.Remote.ReqCharVars.OnClientInvoke()
+        return {}
     end
 
-    local function OnCharacterAdded(character)
-        character:WaitForChild("Humanoid")
-        character:WaitForChild("HumanoidRootPart")
-        ReplicatedStorage.Remote.RemoveWaiting:FireServer(Key)
-        character.Humanoid.WalkSpeed = 0
-        character.Humanoid.JumpPower = 0
-        task.wait(0.5)
-        character.Humanoid.WalkSpeed = 0
-        character.Humanoid.JumpPower = 0
-        character.HumanoidRootPart.CFrame = CFrame.new(Map.PrimaryPart.Position) + Vector3.new(0, Map.PrimaryPart.Size.Y / 2, 0)
-        character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
-        character.HumanoidRootPart.RotVelocity = Vector3.new(0, 0, 0)
-        character.HumanoidRootPart.Orientation = Vector3.new(0, 0, 0)
-        character.Humanoid.PlatformStand = true
-        ReplicatedStorage.Remote.AddWaiting:FireServer(Key)
-        character.Humanoid.PlatformStand = false
-        character.HumanoidRootPart.CFrame = CFrame.new(Map.PrimaryPart.Position) + Vector3.new(0, 3, 0)
-    end
+    SetPrimaryPart()
+    Map = game.Workspace.Multiplayer.Map:Clone()
+    Map.Parent = game.Workspace
+    Map:MoveTo(Vector3.new(0, 1000, 0))
 
-    local function OnPlayerRespawn()
-        if not MapDuplicated then
-            OnMapDuplicated()
+    LocalPlayer.Character:Destroy()
+
+    return Map
+end
+
+local function Wait()
+    LocalPlayer.CharacterAdded:Wait()
+
+    SetUpGui()
+
+    Map = SetUpMap()
+
+    wait(7) -- Delay to ensure map loading
+
+    Map:MoveTo(Vector3.new(0, 0, 0))
+    workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+
+    repeat
+        RunService.RenderStepped:Wait()
+    until workspace.CurrentCamera.CameraType == Enum.CameraType.Scriptable
+
+    return Map
+end
+
+local function DuplicateMap()
+    local Map = Wait()
+
+    for _, part in ipairs(Map:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.Transparency = 1
+            part.CanCollide = false
         end
-
-        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-        OnCharacterAdded(character)
     end
 
-    LocalPlayer.CharacterAdded:Connect(OnCharacterAdded)
-    LocalPlayer.CharacterAdded:Connect(function(character)
-        character:WaitForChild("Humanoid")
-        character.Humanoid.Died:Connect(OnPlayerRespawn)
+    for _, decal in ipairs(Map:GetDescendants()) do
+        if decal:IsA("Decal") then
+            decal.Transparency = 1
+        end
+    end
+
+    Map.PrimaryPart.Transparency = 1
+
+    return Map
+end
+
+local function VerifyDuplication(Map)
+    local function CheckDuplication()
+        for _, part in ipairs(Map:GetDescendants()) do
+            if part:IsA("BasePart") and part.Transparency == 1 then
+                return true
+            end
+        end
+        return false
+    end
+
+    local maxAttempts = 5 -- Maximum number of attempts to verify duplication
+    local attemptCount = 0
+
+    repeat
+        wait(1) -- Wait for a second before checking duplication
+        attemptCount = attemptCount + 1
+    until CheckDuplication() or attemptCount >= maxAttempts
+
+    if not CheckDuplication() then
+        error("Map duplication failed after multiple attempts.")
+    end
+end
+
+local function HandleError(errorMessage)
+    print("Error:", errorMessage)
+    Alert({{Text = "Error: " .. errorMessage, Duration = 5}})
+end
+
+local function CreateTAS()
+    local success, errorMessage = pcall(function()
+        Map = DuplicateMap()
+        VerifyDuplication(Map)
+        -- Perform additional actions or logic after successful duplication if needed
     end)
 
-    if LocalPlayer.Character then
-        OnCharacterAdded(LocalPlayer.Character)
-    end
-
-    LocalPlayer.CharacterAdded:Connect(OnPlayerRespawn)
-end
-
-local function SaveState()
-    table.insert(Savestates, ReturnPlayerInfo())
-end
-
-local function RestoreState(index)
-    local state = Savestates[index]
-    if state then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = state.CFrame
-        workspace.CurrentCamera.CFrame = state.CameraCFrame
-        LocalPlayer.Character.HumanoidRootPart.Velocity = state.Velocity
-        AnimationState = state.Animation
-        TimePaused = state.Time
+    if not success then
+        HandleError(errorMessage)
     end
 end
 
-local function PauseTAS()
-    if not Pause then
-        PlayAnimation = false
-        task.wait()
-        SenvAnimation = AnimationState
-        AnimationState = {}
-        SaveState()
-        TimePauseHolder = tick()
-        Pause = true
-        PlayAnimation = true
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.Delete and input.UserInputType == Enum.UserInputType.Keyboard then
+        CreateTAS()
     end
-end
-
-local function PlayTAS()
-    if Pause then
-        PlayAnimation = false
-        task.wait()
-        Pause = false
-        TimePaused = TimePaused + (tick() - TimePauseHolder)
-        RestoreState(#Savestates)
-        table.remove(Savestates)
-        AnimationState = SenvAnimation
-        PlayAnimation = true
-    end
-end
+end)
 
 local function SaveRun()
-    local fileName = "TAS_Run_" .. os.date("%Y-%m-%d_%H-%M-%S") .. ".txt"
-    local file = io.open(fileName, "w")
-
-    if file then
-        file:write("TAS Run Data\n")
-        file:write("---------------\n")
-        file:write("Time, X, Y, Z, VX, VY, VZ\n")
-
-        for _, state in ipairs(AnimationState) do
-            local time = string.format("%.3f", state.Time)
-            local cframe = state.CFrame
-            local position = cframe.Position
-            local velocity = state.Velocity
-
-            local x = string.format("%.2f", position.X)
-            local y = string.format("%.2f", position.Y)
-            local z = string.format("%.2f", position.Z)
-
-            local vx = string.format("%.2f", velocity.X)
-            local vy = string.format("%.2f", velocity.Y)
-            local vz = string.format("%.2f", velocity.Z)
-
-            file:write(time .. ", " .. x .. ", " .. y .. ", " .. z .. ", " .. vx .. ", " .. vy .. ", " .. vz .. "\n")
-        end
-
-        file:close()
-        print("TAS Run saved as '" .. fileName .. "'")
-    else
-        warn("Failed to create TAS Run file.")
-    end
-end
-
-local function CollisionToggler()
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        local humanoid = LocalPlayer.Character.Humanoid
-        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-        humanoid:ChangeState(Enum.HumanoidStateType.FallingDown)
-        humanoid:ChangeState(Enum.HumanoidStateType.Landed)
+    if Pause then
+        SenvAnimation = getsenv(LocalPlayer.PlayerScripts.CL_MAIN_GameScript).animation
+        SenvAnimation.Time1.Size = Vector3.new(1.5, 1.5, 1.5)
+        SenvAnimation.UpdateSize(1)
+        SenvAnimation.SaveState()
+        table.insert(Savestates, ReturnPlayerInfo())
+        table.insert(AnimationState, SenvAnimation.Finished.Value)
+        SenvAnimation.Finished.Value = false
+        table.insert(PlayerInfo, LocalPlayer.Character.Humanoid.WalkSpeed)
+        table.insert(PlayerInfo, LocalPlayer.Character.Humanoid.JumpPower)
     end
 end
 
 local function UserPause()
-    if not Pause then
-        PauseTAS()
+    if Pause then
+        SenvAnimation = getsenv(LocalPlayer.PlayerScripts.CL_MAIN_GameScript).animation
+        TimePauseHolder = tick()
+        TimeStart = tick() - TimePaused
+        TimePaused = tick() - TimeStart
+        Pause = false
+        SenvAnimation.IsPaused.Value = true
+        SenvAnimation.Pause()
+        SenvAnimation.Time1.Transparency = 0.5
+        SenvAnimation.Time2.Transparency = 0.5
+        SenvAnimation.Time1.Size = Vector3.new(3, 3, 3)
+        SenvAnimation.Time2.Size = Vector3.new(3, 3, 3)
+        SenvAnimation.UpdateSize(1)
+        TimeText.Visible = true
+        TimeText.Position = UDim2.new(0.030, 0, 0.35, 0)
+        TimeText.Size = UDim2.new(0, 100, 0, 27)
+        TimeText.Font = Enum.Font.Highway
+        TimeText.TextColor3 = Color3.fromRGB(255, 255, 0)
+        TimeText.TextSize = 60
+        TimeText.TextXAlignment = Enum.TextXAlignment.Left
     else
-        PlayTAS()
+        SenvAnimation = getsenv(LocalPlayer.PlayerScripts.CL_MAIN_GameScript).animation
+        TimePaused = TimePaused + (tick() - TimePauseHolder)
+        Pause = true
+        SenvAnimation.IsPaused.Value = false
+        SenvAnimation.Pause()
+        SenvAnimation.Time1.Transparency = 1
+        SenvAnimation.Time2.Transparency = 1
+        TimeText.Visible = false
     end
 end
 
 local function AddSavestate()
-    SaveState()
-    Alert("Added Savestate!")
+    if Pause then
+        table.insert(Savestates, ReturnPlayerInfo())
+        SenvAnimation = getsenv(LocalPlayer.PlayerScripts.CL_MAIN_GameScript).animation
+        table.insert(AnimationState, SenvAnimation.Finished.Value)
+        SenvAnimation.Finished.Value = false
+        table.insert(PlayerInfo, LocalPlayer.Character.Humanoid.WalkSpeed)
+        table.insert(PlayerInfo, LocalPlayer.Character.Humanoid.JumpPower)
+    end
 end
 
 local function RemoveSavestate()
-    local state = table.remove(Savestates)
-    if state then
-        Alert("Removed Savestate!")
-    else
-        Alert("No Savestates to remove!")
+    if Pause and #Savestates > 0 then
+        table.remove(Savestates)
+        table.remove(AnimationState)
+        table.remove(PlayerInfo)
+        table.remove(PlayerInfo)
     end
 end
 
 local function BackSavestate()
-    if #Savestates > 0 then
-        RestoreState(#Savestates)
+    if Pause and #Savestates > 0 then
         table.remove(Savestates)
-        Alert("Returned to previous Savestate!")
-    else
-        Alert("No Savestates to return to!")
+        table.remove(AnimationState)
+        table.remove(PlayerInfo)
+        table.remove(PlayerInfo)
+        SenvAnimation = getsenv(LocalPlayer.PlayerScripts.CL_MAIN_GameScript).animation
+        SenvAnimation.Finished.Value = AnimationState[#AnimationState]
+        LocalPlayer.Character.Humanoid.WalkSpeed = PlayerInfo[#PlayerInfo - 1]
+        LocalPlayer.Character.Humanoid.JumpPower = PlayerInfo[#PlayerInfo]
     end
 end
 
-SetPrimaryPart()
-SetUpGui()
-SetUpMap()
-
-RunService.RenderStepped:Connect(function()
-    if PlayAnimation then
-        table.insert(AnimationState, ReturnPlayerInfo())
-        local time = AnimationState[#AnimationState].Time
-        local minutes = math.floor(time / 60)
-        local seconds = math.floor(time % 60)
-        local milliseconds = math.floor((time % 1) * 1000)
-        TimeText.Text = string.format("%d:%02d:%03d", minutes, seconds, milliseconds)
+local function CollisionToggler()
+    for _, part in ipairs(game:GetService("Workspace").Multiplayer.Map:GetDescendants()) do
+        if part:IsA("BasePart") and not part.Anchored then
+            part.CanCollide = not part.CanCollide
+        end
     end
-end)
+end
 
-UserInputService.InputBegan:Connect(function(input, isTyping)
-    if not isTyping then
-        local keyCode = input.KeyCode.Name
-        if keyCode == "CapsLock" then
+UserInputService.InputBegan:Connect(function(key, typing)
+    if not typing then
+        key = key.KeyCode.Name
+        if key == "CapsLock" then
             UserPause()
-        elseif keyCode == "One" then
+        elseif key == "One" then
             AddSavestate()
-        elseif keyCode == "Two" then
+        elseif key == "Two" then
             RemoveSavestate()
-        elseif keyCode == "Three" then
+        elseif key == "Three" then
             BackSavestate()
-        elseif keyCode == "Four" then
+        elseif key == "Four" then
             CollisionToggler()
-        elseif keyCode == "Five" then
+        elseif key == "Five" then
             SaveRun()
         end
     end
