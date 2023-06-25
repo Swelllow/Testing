@@ -353,7 +353,7 @@ task.spawn(function()
 local SkipMirroredMaps = {
     ["Retro Coast"] = true,
     ["Zemblanity"] = true,
-    ["Shimmering Delta"] = true,
+    ["Sulphurous Sea"] = true,
     ["Northren Mill"] = true,
     ["Mysterium"] = true,
     ["Oil Outpost"] = true,
