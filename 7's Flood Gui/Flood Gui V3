@@ -353,13 +353,8 @@ task.spawn(function()
 local SkipMirroredMaps = {
     ["Retro Coast"] = true,
     ["Zemblanity"] = true,
-    ["Sulphurous Sea"] = true,
     ["Northren Mill"] = true,
     ["Mysterium"] = true,
-    ["Oil Outpost"] = true,
-    ["Sinister Labyrinth"] = true,
-    ["Snowy Stronghold"] = true,
-    ["Chaoz Japan"] = true,
     ["Decaying Silo"] = true,
     ["Active Volcanic Mines"] = true
 }
@@ -382,15 +377,22 @@ CLMAIN.newAlert("TAS Loaded!")
 local Map = Multi:WaitForChild("Map")
 local mapName = Map:WaitForChild('Settings').MapName.Value
 
-if SkipMirroredMaps[mapName] then
-    CLMAIN.newAlert('Mirrored script skipped for map: ' .. mapName)
+local HighlightPath = game:GetService("Workspace").Multiplayer.Map.Settings:FindFirstChild("Highlight")
+
+if HighlightPath then
+    CLMAIN.newAlert("Map cannot be mirrored.")
+    Mirrored = false
 else
-    if Map:WaitForChild('Settings'):FindFirstChild("_MirrorMap") then
-        CLMAIN.newAlert('Map is not mirrored.')
-        Mirrored = false
+    if SkipMirroredMaps[mapName] then
+        CLMAIN.newAlert('Map cannot be mirrored.')
     else
-        CLMAIN.newAlert('Map is mirrored, TAS will be played mirrored!')
-        Mirrored = true
+        if Map:WaitForChild('Settings'):FindFirstChild("_MirrorMap") then
+            CLMAIN.newAlert('Map is not mirrored.')
+            Mirrored = false
+        else
+            CLMAIN.newAlert('Map is mirrored, TAS will be played mirrored!')
+            Mirrored = true
+        end
     end
 end
 
