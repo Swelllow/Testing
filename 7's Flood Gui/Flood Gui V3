@@ -98,39 +98,120 @@ local function tween(pos)
 	return toof
 end
 
-local UIS = game:GetService'UserInputService'
+local UIS = game:GetService("UserInputService")
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 local colors = {
     SchemeColor = Color3.fromRGB(0, 100, 255),
-	Background = Color3.fromRGB(40, 40, 40),
-	Header = Color3.fromRGB(30, 30, 30),
-	TextColor = Color3.fromRGB(255, 255, 255),
-	ElementColor = Color3.fromRGB(60, 60, 60)
+    Background = Color3.fromRGB(40, 40, 40),
+    Header = Color3.fromRGB(30, 30, 30),
+    TextColor = Color3.fromRGB(255, 255, 255),
+    ElementColor = Color3.fromRGB(60, 60, 60)
 }
 local Window = Library.CreateLib("Flood GUI v3", colors)
 local a = Window:NewTab("Auto")
+local s = Window:NewTab("Stat Tracker")
 local l = Window:NewTab("Local-Player")
 local b = Window:NewTab("Blatant")
 local t = Window:NewTab("TAS")
 local k = Window:NewTab("Other")
 local c = Window:NewTab("Credits")
+
 local auto = a:NewSection("Auto")
+local statTracker = s:NewSection("Stat Tracker")
 local loc = l:NewSection("Local Player")
 local blatant = b:NewSection("Blatant")
 local tas = t:NewSection("TAS")
 local other = k:NewSection("Other")
 local credits = c:NewSection("Credits")
+
 getgenv().wow = true
-other:NewKeybind("ToggleUI", "Toggle UI with this keybind.", Enum.KeyCode.J, function()
-	if getgenv().ui == true then
-		clmain.newAlert("UI Disabled!", Color3.fromRGB(255, 0, 0))
-		getgenv().ui = false
-	else
-		clmain.newAlert("UI Enabled!", Color3.fromRGB(0, 60, 255))
-		getgenv().ui = true
-	end
-	Library:ToggleUI()
+
+-- Coins Tracker
+local players = game:GetService("Players")
+local localPlayer = players.LocalPlayer
+local playerGui = localPlayer.PlayerGui
+local coinsAmount = playerGui.MenuGui.Shop.Currencies.Coins.Amount
+
+local coinsLabel = statTracker:NewLabel("Coins Earned: 0")
+local initialCoins = tonumber(coinsAmount.Text)
+
+-- Gems Tracker
+local gemsAmount = playerGui.MenuGui.Shop.Currencies.Gems.Amount
+
+local gemsLabel = statTracker:NewLabel("Gems Earned: 0")
+local initialGems = tonumber(gemsAmount.Text)
+
+-- XP Tracker
+local xpEarnedAmount = playerGui.MenuGui.Goals.Window.Content.Pages.Stats.xpEarned.Amount
+
+local xpLabel = statTracker:NewLabel("XP Earned: 0")
+local initialXP = tonumber(xpEarnedAmount.Text)
+
+local coinsEvent = Instance.new("BindableEvent")
+local gemsEvent = Instance.new("BindableEvent")
+local xpEvent = Instance.new("BindableEvent")
+
+coinsEvent.Event:Connect(function(coins)
+    coinsLabel:UpdateLabel("Coins Earned: " .. coins)
 end)
+
+gemsEvent.Event:Connect(function(gems)
+    gemsLabel:UpdateLabel("Gems Earned: " .. gems)
+end)
+
+xpEvent.Event:Connect(function(xp)
+    xpLabel:UpdateLabel("XP Earned: " .. xp)
+end)
+
+local function trackCoins()
+    local currentCoins = tonumber(coinsAmount.Text)
+    if initialCoins then
+        local coinsEarned = currentCoins - initialCoins
+        coinsEvent:Fire(coinsEarned)
+    else
+        initialCoins = currentCoins
+    end
+end
+
+local function trackGems()
+    local currentGems = tonumber(gemsAmount.Text)
+    if initialGems then
+        local gemsEarned = currentGems - initialGems
+        gemsEvent:Fire(gemsEarned)
+    else
+        initialGems = currentGems
+    end
+end
+
+local function trackXP()
+    local currentXP = tonumber(xpEarnedAmount.Text)
+    if initialXP then
+        local xpEarned = currentXP - initialXP
+        xpEvent:Fire(xpEarned)
+    else
+        initialXP = currentXP
+    end
+end
+
+spawn(function()
+    while wait(1) do
+        trackCoins()
+        trackGems()
+        trackXP()
+    end
+end)
+
+other:NewKeybind("ToggleUI", "Toggle UI with this keybind.", Enum.KeyCode.J, function()
+    if getgenv().ui == true then
+        clmain.newAlert("UI Disabled!", Color3.fromRGB(255, 0, 0))
+        getgenv().ui = false
+    else
+        clmain.newAlert("UI Enabled!", Color3.fromRGB(0, 60, 255))
+        getgenv().ui = true
+    end
+    Library:ToggleUI()
+end)
+
 other:NewLabel("Discord Invites")
 other:NewButton("Copy Tomato-Hub Invite", "Copies Tomato-Hub invite to clipboard!", function()
 	setclipboard("https://discord.gg/8N2M9fHJqa")
