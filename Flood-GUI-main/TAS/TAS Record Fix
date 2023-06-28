@@ -282,21 +282,22 @@ UserInputService.InputBegan:Connect(function(Input)
 			TextForTime.Text = tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) / 60))) .. ":" .. ("0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) % 60)))) .. "." .. "0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) * 1000 % 1000)))
 		end
 	elseif Input.KeyCode.Name == "Three" then
-		if ViewRun == false and #Pos > 0 then
-			local lastPos = Pos[#Pos]
-			Character().HumanoidRootPart.CFrame = lastPos.CCFrame
-			Character().HumanoidRootPart.Velocity = lastPos.VVelocity
-			Workspace.CurrentCamera.CFrame = lastPos.CCameraCFrame
-			AnimationState = lastPos.AAnimation
-			AnimationHowManyChange = lastPos.AAnimationChanged
-			TimeForGame = os.clock() - lastPos.time
+		if ViewRun == false then
+			for i = 1, #SaveStates[#SaveStates] do
+				table.insert(Pos, SaveStates[#SaveStates][i])
+			end
+			Character().HumanoidRootPart.CFrame = Pos[#Pos].CCFrame
+			Character().HumanoidRootPart.Velocity = Pos[#Pos].VVelocity
+			Workspace.CurrentCamera.CFrame = Pos[#Pos].CCameraCFrame
+			AnimationState = Pos[#Pos].AAnimation
+			AnimationHowManyChange = Pos[#Pos].AAnimationChanged
+			TimeForGame = os.clock() - Pos[#Pos].time
 			TimeSubtractPause = 0
 			PauseTimeWait = os.clock()
 			Pos = {}
 			FrameGo = {}
 			TextForTime.Text = tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) / 60))) .. ":" .. ("0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) % 60)))) .. "." .. "0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) * 1000 % 1000)))
 		end
-
 	elseif Input.KeyCode.Name == "Four" then
 		if ViewRun == false then
 			ToggleFrameBack = true
