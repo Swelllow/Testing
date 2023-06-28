@@ -345,8 +345,6 @@ UserInputService.InputBegan:Connect(function(Input)
 		end
 		elseif Input.KeyCode.Name == "Six" then
 		if ViewRun == false then
-		elseif Input.KeyCode.Name == "Six" then
-		if ViewRun == false then
 		        local AllPlayerInfo = {}
 		        for SaveStateIndex = 2, #Savestates do
 		            for FrameIndex = 1, #Savestates[SaveStateIndex] do
