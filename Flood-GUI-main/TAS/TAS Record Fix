@@ -345,45 +345,41 @@ UserInputService.InputBegan:Connect(function(Input)
 		end
 		elseif Input.KeyCode.Name == "Six" then
 		if ViewRun == false then
-			for SaveState = 1, #SaveStates do
-				for Frame = 1, #SaveStates[SaveState] do
-					local saveState = SaveStates[SaveState][Frame]
-					local ccFrame = saveState.CCFrame
-					local cCameraCFrame = saveState.CCameraCFrame
+			for SaveStateIndex = 1, #SaveStates do
+				local saveState = SaveStates[SaveStateIndex]
 	
-					if type(ccFrame) == "userdata" and type(cCameraCFrame) == "userdata" then
+				for FrameIndex = 1, #saveState do
+					local frame = saveState[FrameIndex]
+	
+					local ccFrame = frame.CCFrame
+					local cCameraCFrame = frame.CCameraCFrame
+	
+					if ccFrame and cCameraCFrame then
 						local ccFrameEulerAngles = ccFrame:ToEulerAnglesXYZ()
 						local cCameraCFrameEulerAngles = cCameraCFrame:ToEulerAnglesXYZ()
 	
-						-- Ensure ccFrameEulerAngles and cCameraCFrameEulerAngles are valid CFrame objects
-						if type(ccFrameEulerAngles) == "userdata" and type(cCameraCFrameEulerAngles) == "userdata" then
-							table.insert(TAS, {
-								CCFrame = {
-									ccFrame.X,
-									ccFrame.Y,
-									ccFrame.Z,
-									ccFrameEulerAngles.X,
-									ccFrameEulerAngles.Y,
-									ccFrameEulerAngles.Z
-								},
-								VVelocity = {
-									saveState.VVelocity.X,
-									saveState.VVelocity.Y,
-									saveState.VVelocity.Z
-								},
-								CCameraCFrame = {
-									cCameraCFrame.X,
-									cCameraCFrame.Y,
-									cCameraCFrame.Z,
-									cCameraCFrameEulerAngles.X,
-									cCameraCFrameEulerAngles.Y,
-									cCameraCFrameEulerAngles.Z
-								},
-								time = saveState.time,
-								AAnimation = saveState.AAnimation,
-								AAnimationChanged = saveState.AAnimationChanged
-							})
-						end
+						table.insert(TAS, {
+							CCFrame = {
+								ccFrame.X,
+								ccFrame.Y,
+								ccFrame.Z,
+								ccFrameEulerAngles.X,
+								ccFrameEulerAngles.Y,
+								ccFrameEulerAngles.Z
+							},
+							VVelocity = frame.VVelocity,
+							CCameraCFrame = {
+								cCameraCFrame.X,
+								cCameraCFrame.Y,
+								cCameraCFrame.Z,
+								cCameraCFrameEulerAngles.X,
+								cCameraCFrameEulerAngles.Y,
+								cCameraCFrameEulerAngles.Z
+							},
+							time = frame.time,
+							AAnimation = frame.AAnimation,
+							AAnimationChanged = frame.AAnimationChanged
+						})
 					end
 				end
 			end
