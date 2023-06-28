@@ -345,41 +345,48 @@ UserInputService.InputBegan:Connect(function(Input)
 		end
 		elseif Input.KeyCode.Name == "Six" then
 		if ViewRun == false then
-			for SaveStateIndex, SaveState in ipairs(SaveStates) do
-				for FrameIndex, Frame in ipairs(SaveState) do
-					local ccFrame = Frame.CCFrame
-					local cCameraCFrame = Frame.CCameraCFrame
+			local TAS = {}
+			for SaveStateIndex = 1, #SaveStates do
+				local SaveState = SaveStates[SaveStateIndex]
+				for FrameIndex = 1, #SaveState do
+					local Frame = SaveState[FrameIndex]
+					local CCFrame = Frame.CCFrame
+					local CCameraCFrame = Frame.CCameraCFrame
 	
-					if ccFrame and cCameraCFrame then
-						local ccFrameEulerAngles = ccFrame:ToEulerAnglesXYZ()
-						local cCameraCFrameEulerAngles = cCameraCFrame:ToEulerAnglesXYZ()
+					if CCFrame and CCameraCFrame then
+						local CCFrameEulerAngles = CCFrame:ToEulerAnglesXYZ()
+						local CCameraCFrameEulerAngles = CCameraCFrame:ToEulerAnglesXYZ()
 	
 						table.insert(TAS, {
-							CCFrame = {
-								ccFrame.X,
-								ccFrame.Y,
-								ccFrame.Z,
-								ccFrameEulerAngles.X,
-								ccFrameEulerAngles.Y,
-								ccFrameEulerAngles.Z
-							},
-							VVelocity = Frame.VVelocity,
+							AAnimationChanged = Frame.AAnimationChanged,
+							VVelocity = {Frame.VVelocity.X, Frame.VVelocity.Y, Frame.VVelocity.Z},
 							CCameraCFrame = {
-								cCameraCFrame.X,
-								cCameraCFrame.Y,
-								cCameraCFrame.Z,
-								cCameraCFrameEulerAngles.X,
-								cCameraCFrameEulerAngles.Y,
-								cCameraCFrameEulerAngles.Z
+								CCameraCFrame.X,
+								CCameraCFrame.Y,
+								CCameraCFrame.Z,
+								CCameraCFrameEulerAngles.X,
+								CCameraCFrameEulerAngles.Y,
+								CCameraCFrameEulerAngles.Z
 							},
-							time = Frame.time,
-							AAnimation = Frame.AAnimation,
-							AAnimationChanged = Frame.AAnimationChanged
+							CCFrame = {
+								CCFrame.X,
+								CCFrame.Y,
+								CCFrame.Z,
+								CCFrameEulerAngles.X,
+								CCFrameEulerAngles.Y,
+								CCFrameEulerAngles.Z
+							},
+							time = Frame.time
 						})
 					end
 				end
 			end
-			writefile(mapClone.Settings.MapName.Value .. ".json", game:GetService("HttpService"):JSONEncode(TAS))
+	
+			local i = -1
+			repeat
+				i = i + 1
+			until not isfile("tas/" .. mapClone.Settings.MapName.Value .. tostring(i) .. ".json")
+			writefile("tas/" .. mapClone.Settings.MapName.Value .. tostring(i) .. ".json", game:GetService("HttpService"):JSONEncode(TAS))
 		end
 	elseif Input.KeyCode.Name == "C" then
 		if ViewRun == false then
