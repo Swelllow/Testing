@@ -279,9 +279,7 @@ UserInputService.InputBegan:Connect(function(Input)
 	elseif Input.KeyCode.Name == "Three" then
 		if ViewRun == false then
 			for i = 1, #SaveStates[#SaveStates] do
-				Pos = {
-					[i] = SaveStates[#SaveStates][i]
-				}
+				table.insert(Pos, SaveStates[#SaveStates][i])
 			end
 			Character().HumanoidRootPart.CFrame = Pos[#Pos].CCFrame
 			Character().HumanoidRootPart.Velocity = Pos[#Pos].VVelocity
@@ -295,6 +293,7 @@ UserInputService.InputBegan:Connect(function(Input)
 			FrameGo = {}
 			TextForTime.Text = tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) / 60))) .. ":" .. ("0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) % 60)))) .. "." .. "0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) * 1000 % 1000)))
 		end
+
 	elseif Input.KeyCode.Name == "Four" then
 		if ViewRun == false then
 			ToggleFrameBack = true
