@@ -355,32 +355,35 @@ UserInputService.InputBegan:Connect(function(Input)
 						local ccFrameEulerAngles = ccFrame:ToEulerAnglesXYZ()
 						local cCameraCFrameEulerAngles = cCameraCFrame:ToEulerAnglesXYZ()
 	
-						table.insert(TAS, {
-							CCFrame = {
-								ccFrame.X,
-								ccFrame.Y,
-								ccFrame.Z,
-								ccFrameEulerAngles.X,
-								ccFrameEulerAngles.Y,
-								ccFrameEulerAngles.Z
-							},
-							VVelocity = {
-								saveState.VVelocity.X,
-								saveState.VVelocity.Y,
-								saveState.VVelocity.Z
-							},
-							CCameraCFrame = {
-								cCameraCFrame.X,
-								cCameraCFrame.Y,
-								cCameraCFrame.Z,
-								cCameraCFrameEulerAngles.X,
-								cCameraCFrameEulerAngles.Y,
-								cCameraCFrameEulerAngles.Z
-							},
-							time = saveState.time,
-							AAnimation = saveState.AAnimation,
-							AAnimationChanged = saveState.AAnimationChanged
-						})
+						-- Ensure ccFrameEulerAngles and cCameraCFrameEulerAngles are valid CFrame objects
+						if type(ccFrameEulerAngles) == "userdata" and type(cCameraCFrameEulerAngles) == "userdata" then
+							table.insert(TAS, {
+								CCFrame = {
+									ccFrame.X,
+									ccFrame.Y,
+									ccFrame.Z,
+									ccFrameEulerAngles.X,
+									ccFrameEulerAngles.Y,
+									ccFrameEulerAngles.Z
+								},
+								VVelocity = {
+									saveState.VVelocity.X,
+									saveState.VVelocity.Y,
+									saveState.VVelocity.Z
+								},
+								CCameraCFrame = {
+									cCameraCFrame.X,
+									cCameraCFrame.Y,
+									cCameraCFrame.Z,
+									cCameraCFrameEulerAngles.X,
+									cCameraCFrameEulerAngles.Y,
+									cCameraCFrameEulerAngles.Z
+								},
+								time = saveState.time,
+								AAnimation = saveState.AAnimation,
+								AAnimationChanged = saveState.AAnimationChanged
+							})
+						end
 					end
 				end
 			end
