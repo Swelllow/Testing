@@ -353,31 +353,33 @@ UserInputService.InputBegan:Connect(function(Input)
 					local CCFrame = Frame.CCFrame
 					local CCameraCFrame = Frame.CCameraCFrame
 	
-					if CCFrame and CCameraCFrame then
+					if type(CCFrame) == "userdata" and type(CCameraCFrame) == "userdata" then
 						local CCFrameEulerAngles = CCFrame:ToEulerAnglesXYZ()
 						local CCameraCFrameEulerAngles = CCameraCFrame:ToEulerAnglesXYZ()
 	
-						table.insert(TAS, {
-							AAnimationChanged = Frame.AAnimationChanged,
-							VVelocity = {Frame.VVelocity.X, Frame.VVelocity.Y, Frame.VVelocity.Z},
-							CCameraCFrame = {
-								CCameraCFrame.X,
-								CCameraCFrame.Y,
-								CCameraCFrame.Z,
-								CCameraCFrameEulerAngles.X,
-								CCameraCFrameEulerAngles.Y,
-								CCameraCFrameEulerAngles.Z
-							},
-							CCFrame = {
-								CCFrame.X,
-								CCFrame.Y,
-								CCFrame.Z,
-								CCFrameEulerAngles.X,
-								CCFrameEulerAngles.Y,
-								CCFrameEulerAngles.Z
-							},
-							time = Frame.time
-						})
+						if type(CCFrameEulerAngles) == "userdata" and type(CCameraCFrameEulerAngles) == "userdata" then
+							table.insert(TAS, {
+								CCFrame = {
+									CCFrame.X,
+									CCFrame.Y,
+									CCFrame.Z,
+									CCFrameEulerAngles.X,
+									CCFrameEulerAngles.Y,
+									CCFrameEulerAngles.Z
+								},
+								VVelocity = {Frame.VVelocity.X, Frame.VVelocity.Y, Frame.VVelocity.Z},
+								CCameraCFrame = {
+									CCameraCFrame.X,
+									CCameraCFrame.Y,
+									CCameraCFrame.Z,
+									CCameraCFrameEulerAngles.X,
+									CCameraCFrameEulerAngles.Y,
+									CCameraCFrameEulerAngles.Z
+								},
+								time = Frame.time,
+								AAnimationChanged = Frame.AAnimationChanged
+							})
+						end
 					end
 				end
 			end
