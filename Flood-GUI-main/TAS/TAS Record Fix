@@ -345,39 +345,37 @@ UserInputService.InputBegan:Connect(function(Input)
 		end
 		elseif Input.KeyCode.Name == "Six" then
 		if ViewRun == false then
-		        local AllPlayerInfo = {}
-		        for SaveStateIndex = 2, #Savestates do
-		            for FrameIndex = 1, #Savestates[SaveStateIndex] do
-		                local InfoFromSavestates = Savestates[SaveStateIndex][FrameIndex]
-		                local InfoAddingToAllPlayerInfo = {}
-		                InfoAddingToAllPlayerInfo.AAnimationChanged = InfoFromSavestates.Animation[2]
-		                InfoAddingToAllPlayerInfo.VVelocity = {InfoFromSavestates.Velocity.X, InfoFromSavestates.Velocity.Y, InfoFromSavestates.Velocity.Z}
-		                InfoAddingToAllPlayerInfo.CCameraCFrame = {
-		                    InfoFromSavestates.CameraCFrame.X,
-		                    InfoFromSavestates.CameraCFrame.Y,
-		                    InfoFromSavestates.CameraCFrame.Z,
-		                    InfoFromSavestates.CameraCFrame:ToEulerAnglesXYZ().X,
-		                    InfoFromSavestates.CameraCFrame:ToEulerAnglesXYZ().Y,
-		                    InfoFromSavestates.CameraCFrame:ToEulerAnglesXYZ().Z
-		                }
-		                InfoAddingToAllPlayerInfo.CCFrame = {
-		                    InfoFromSavestates.CFrame.X,
-		                    InfoFromSavestates.CFrame.Y,
-		                    InfoFromSavestates.CFrame.Z,
-		                    InfoFromSavestates.CFrame:ToEulerAnglesXYZ().X,
-		                    InfoFromSavestates.CFrame:ToEulerAnglesXYZ().Y,
-		                    InfoFromSavestates.CFrame:ToEulerAnglesXYZ().Z
-		                }
-		                InfoAddingToAllPlayerInfo.time = InfoFromSavestates.Time
-		                table.insert(AllPlayerInfo, InfoAddingToAllPlayerInfo)
-		            end
-		        end
-		        local i = -1
-		        repeat
-		            i = i + 1
-		        until not isfile("tas/" .. game.Workspace.Map.Settings.MapName.Value .. tostring(i) .. ".json")
-		        writefile("tas/" .. game.Workspace.Map.Settings.MapName.Value .. tostring(i) .. ".json", game:GetService("HttpService"):JSONEncode(AllPlayerInfo))
-		        Alert("Saved", Color3.fromRGB(0, 255, 0), 1)
+			for SaveState = 1, #SaveStates do
+				for Frame = 1, #SaveStates[SaveState] do
+					table.insert(TAS, {
+						CCFrame = {
+							SaveStates[SaveState][Frame].CCFrame.X,
+							SaveStates[SaveState][Frame].CCFrame.Y,
+							SaveStates[SaveState][Frame].CCFrame.Z,
+							SaveStates[SaveState][Frame].CCFrame:ToEulerAnglesXYZ().X,
+							SaveStates[SaveState][Frame].CCFrame:ToEulerAnglesXYZ().Y,
+							SaveStates[SaveState][Frame].CCFrame:ToEulerAnglesXYZ().Z
+						},
+						VVelocity = {
+							SaveStates[SaveState][Frame].VVelocity.X,
+							SaveStates[SaveState][Frame].VVelocity.Y,
+							SaveStates[SaveState][Frame].VVelocity.Z
+						},
+						CCameraCFrame = {
+							SaveStates[SaveState][Frame].CCameraCFrame.X,
+							SaveStates[SaveState][Frame].CCameraCFrame.Y,
+							SaveStates[SaveState][Frame].CCameraCFrame.Z,
+							SaveStates[SaveState][Frame].CCameraCFrame:ToEulerAnglesXYZ(),
+							SaveStates[SaveState][Frame].CCameraCFrame:ToEulerAnglesXYZ(),
+							SaveStates[SaveState][Frame].CCameraCFrame:ToEulerAnglesXYZ()
+						},
+						time = SaveStates[SaveState][Frame].time,
+						AAnimation = SaveStates[SaveState][Frame].AAnimation,
+						AAnimationChanged = SaveStates[SaveState][Frame].AAnimationChanged
+					})
+				end
+			end
+			writefile(mapClone.Settings.MapName.Value .. ".json", HttpService:JSONEncode(TAS))
 		end
 	elseif Input.KeyCode.Name == "C" then
 		if ViewRun == false then
