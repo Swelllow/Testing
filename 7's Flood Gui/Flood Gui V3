@@ -201,6 +201,18 @@ spawn(function()
     end
 end)
 
+local startTime = os.time()
+
+local timerLabel = statTracker:NewLabel("Timer: 0 seconds")
+
+spawn(function()
+    while true do
+        local currentTime = os.time() - startTime
+        timerLabel:UpdateLabel("Timer: " .. currentTime .. " seconds")
+        wait(1)
+    end
+end)
+
 other:NewKeybind("ToggleUI", "Toggle UI with this keybind.", Enum.KeyCode.J, function()
     if getgenv().ui == true then
         clmain.newAlert("UI Disabled!", Color3.fromRGB(255, 0, 0))
