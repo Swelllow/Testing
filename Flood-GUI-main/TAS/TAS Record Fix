@@ -347,32 +347,14 @@ UserInputService.InputBegan:Connect(function(Input)
 		end
 	elseif Input.KeyCode.Name == "Six" then
     		if ViewRun == false then
-		        local TAS = {}  -- Create a new table to store the TAS data
+        		local TAS = {}
 		        for _, saveState in ipairs(SaveStates) do
 		            local tasState = {}
 		            for _, frameData in ipairs(saveState) do
 		                local tasFrame = {
-		                    CCFrame = {
-		                        frameData.CCFrame.X,
-		                        frameData.CCFrame.Y,
-		                        frameData.CCFrame.Z,
-		                        frameData.CCFrame:ToEulerAnglesXYZ().X,
-		                        frameData.CCFrame:ToEulerAnglesXYZ().Y,
-		                        frameData.CCFrame:ToEulerAnglesXYZ().Z
-		                    },
-		                    VVelocity = {
-		                        frameData.VVelocity.X,
-		                        frameData.VVelocity.Y,
-		                        frameData.VVelocity.Z
-		                    },
-		                    CCameraCFrame = {
-		                        frameData.CCameraCFrame.X,
-		                        frameData.CCameraCFrame.Y,
-		                        frameData.CCameraCFrame.Z,
-		                        frameData.CCameraCFrame:ToEulerAnglesXYZ().X,
-		                        frameData.CCameraCFrame:ToEulerAnglesXYZ().Y,
-		                        frameData.CCameraCFrame:ToEulerAnglesXYZ().Z
-		                    },
+		                    CCFrame = frameData.CCFrame,
+		                    VVelocity = frameData.VVelocity,
+		                    CCameraCFrame = frameData.CCameraCFrame,
 		                    time = frameData.time,
 		                    AAnimation = frameData.AAnimation,
 		                    AAnimationChanged = frameData.AAnimationChanged
@@ -382,8 +364,8 @@ UserInputService.InputBegan:Connect(function(Input)
 		            table.insert(TAS, tasState)
 		        end
 
-			local jsonText = game:GetService("HttpService"):JSONEncode(TAS)
-			writefile(mapClone.Settings.MapName.Value .. ".json", jsonText)
+		        local jsonText = game:GetService("HttpService"):JSONEncode(TAS)
+		        writefile(mapClone.Settings.MapName.Value .. ".json", jsonText)
 		end
 
 	elseif Input.KeyCode.Name == "C" then
