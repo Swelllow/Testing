@@ -70,7 +70,6 @@ local function SetUpMap()
     SetPrimaryPart()
     Map = game.Workspace.Multiplayer.Map:Clone()
     Map.Parent = game.Workspace
-    Map:MoveTo(Vector3.new(0,1000,0))
     LocalPlayer.Character.Head:Destroy()
     LocalPlayer.CharacterAdded:Wait()
     LocalPlayer.Character:WaitForChild("Humanoid")
@@ -105,10 +104,10 @@ local function SetUpMap()
         end
     end
     for i,v in ipairs(Map.Interactives:GetDescendants()) do
-    	if v:IsA('BasePart') and not v.ClassName == "Model" then
-    		v.Transparency = 0
-    		v.CanCollide = not v.CanCollide
-    	end
+        if v:IsA('BasePart') and not v.ClassName == "Model" then
+            v.Transparency = 0
+            v.CanCollide = not v.CanCollide
+        end
     end
 end
 
