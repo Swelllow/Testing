@@ -282,16 +282,14 @@ UserInputService.InputBegan:Connect(function(Input)
 			TextForTime.Text = tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) / 60))) .. ":" .. ("0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) % 60)))) .. "." .. "0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) * 1000 % 1000)))
 		end
 	elseif Input.KeyCode.Name == "Three" then
-		if ViewRun == false then
-			for i = 1, #SaveStates[#SaveStates] do
-				table.insert(Pos, SaveStates[#SaveStates][i])
-			end
-			Character().HumanoidRootPart.CFrame = Pos[#Pos].CCFrame
-			Character().HumanoidRootPart.Velocity = Pos[#Pos].VVelocity
-			Workspace.CurrentCamera.CFrame = Pos[#Pos].CCameraCFrame
-			AnimationState = Pos[#Pos].AAnimation
-			AnimationHowManyChange = Pos[#Pos].AAnimationChanged
-			TimeForGame = os.clock() - Pos[#Pos].time
+		if ViewRun == false and #Pos > 0 then
+			local lastPos = Pos[#Pos]
+			Character().HumanoidRootPart.CFrame = lastPos.CCFrame
+			Character().HumanoidRootPart.Velocity = lastPos.VVelocity
+			Workspace.CurrentCamera.CFrame = lastPos.CCameraCFrame
+			AnimationState = lastPos.AAnimation
+			AnimationHowManyChange = lastPos.AAnimationChanged
+			TimeForGame = os.clock() - lastPos.time
 			TimeSubtractPause = 0
 			PauseTimeWait = os.clock()
 			Pos = {}
@@ -347,22 +345,46 @@ UserInputService.InputBegan:Connect(function(Input)
 			FrameGo[#FrameGo] = nil
 			TextForTime.Text = tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) / 60))) .. ":" .. ("0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) % 60)))) .. "." .. "0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) * 1000 % 1000)))
 		end
-		if Input.KeyCode.Name == "Six" then
-		    if ViewRun == false then
-		        for SaveState = 1, #SaveStates do
-		            table.insert(TAS, {
-		                AAnimationChanged = SaveStates[SaveState].AAnimationChanged,
-		                VVelocity = {SaveStates[SaveState].VVelocity.X, SaveStates[SaveState].VVelocity.Y, SaveStates[SaveState].VVelocity.Z},
-		                CCameraCFrame = {SaveStates[SaveState].CCameraCFrame.X, SaveStates[SaveState].CCameraCFrame.Y, SaveStates[SaveState].CCameraCFrame.Z, SaveStates[SaveState].CCameraCFrame:ToEulerAnglesXYZ()},
-		                CCFrame = {SaveStates[SaveState].CCFrame.X, SaveStates[SaveState].CCFrame.Y, SaveStates[SaveState].CCFrame.Z, SaveStates[SaveState].CCFrame:ToEulerAnglesXYZ()},
-		                time = SaveStates[SaveState].time,
-		                AAnimation = SaveStates[SaveState].AAnimation
-		            })
-		        end
-		        writefile(mapClone.Settings.MapName.Value .. ".json", game:GetService("HttpService"):JSONEncode(TAS))
-		    end
-		end
+	elseif Input.KeyCode.Name == "Six" then
+		if ViewRun == false then
+			local TAS = {}  -- Create a new table to store the run data
 
+			for SaveState = 1, #SaveStates do
+				local savestate = {}
+				for Frame = 1, #SaveStates[SaveState] do
+					table.insert(savestate, {
+						CCFrame = {
+							X = SaveStates[SaveState][Frame].CCFrame.X,
+							Y = SaveStates[SaveState][Frame].CCFrame.Y,
+							Z = SaveStates[SaveState][Frame].CCFrame.Z,
+							RX = SaveStates[SaveState][Frame].CCFrame:ToEulerAnglesXYZ().X,
+							RY = SaveStates[SaveState][Frame].CCFrame:ToEulerAnglesXYZ().Y,
+							RZ = SaveStates[SaveState][Frame].CCFrame:ToEulerAnglesXYZ().Z
+						},
+						VVelocity = {
+							X = SaveStates[SaveState][Frame].VVelocity.X,
+							Y = SaveStates[SaveState][Frame].VVelocity.Y,
+							Z = SaveStates[SaveState][Frame].VVelocity.Z
+						},
+						CCameraCFrame = {
+							X = SaveStates[SaveState][Frame].CCameraCFrame.X,
+							Y = SaveStates[SaveState][Frame].CCameraCFrame.Y,
+							Z = SaveStates[SaveState][Frame].CCameraCFrame.Z,
+							RX = SaveStates[SaveState][Frame].CCameraCFrame:ToEulerAnglesXYZ().X,
+							RY = SaveStates[SaveState][Frame].CCameraCFrame:ToEulerAnglesXYZ().Y,
+							RZ = SaveStates[SaveState][Frame].CCameraCFrame:ToEulerAnglesXYZ().Z
+						},
+						time = SaveStates[SaveState][Frame].time,
+						AAnimation = SaveStates[SaveState][Frame].AAnimation,
+						AAnimationChanged = SaveStates[SaveState][Frame].AAnimationChanged
+					})
+				end
+				table.insert(TAS, savestate)
+			end
+
+			local encodedTAS = HttpService:JSONEncode(TAS)
+			writefile(mapClone.Settings.MapName.Value .. ".json", encodedTAS)
+		end
 	elseif Input.KeyCode.Name == "C" then
 		if ViewRun == false then
 			local Target = Mouse.Target
