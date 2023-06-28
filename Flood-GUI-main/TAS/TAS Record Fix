@@ -347,32 +347,37 @@ UserInputService.InputBegan:Connect(function(Input)
 		if ViewRun == false then
 			for SaveState = 1, #SaveStates do
 				for Frame = 1, #SaveStates[SaveState] do
-					table.insert(TAS, {
-						CCFrame = {
-							SaveStates[SaveState][Frame].CCFrame.X,
-							SaveStates[SaveState][Frame].CCFrame.Y,
-							SaveStates[SaveState][Frame].CCFrame.Z,
-							SaveStates[SaveState][Frame].CCFrame:ToEulerAnglesXYZ().X,
-							SaveStates[SaveState][Frame].CCFrame:ToEulerAnglesXYZ().Y,
-							SaveStates[SaveState][Frame].CCFrame:ToEulerAnglesXYZ().Z
-						},
-						VVelocity = {
-							SaveStates[SaveState][Frame].VVelocity.X,
-							SaveStates[SaveState][Frame].VVelocity.Y,
-							SaveStates[SaveState][Frame].VVelocity.Z
-						},
-						CCameraCFrame = {
-							SaveStates[SaveState][Frame].CCameraCFrame.X,
-							SaveStates[SaveState][Frame].CCameraCFrame.Y,
-							SaveStates[SaveState][Frame].CCameraCFrame.Z,
-							SaveStates[SaveState][Frame].CCameraCFrame:ToEulerAnglesXYZ(),
-							SaveStates[SaveState][Frame].CCameraCFrame:ToEulerAnglesXYZ(),
-							SaveStates[SaveState][Frame].CCameraCFrame:ToEulerAnglesXYZ()
-						},
-						time = SaveStates[SaveState][Frame].time,
-						AAnimation = SaveStates[SaveState][Frame].AAnimation,
-						AAnimationChanged = SaveStates[SaveState][Frame].AAnimationChanged
-					})
+					local ccFrame = SaveStates[SaveState][Frame].CCFrame
+					local cCameraCFrame = SaveStates[SaveState][Frame].CCameraCFrame
+	
+					if type(ccFrame) == "table" and type(cCameraCFrame) == "table" then
+						table.insert(TAS, {
+							CCFrame = {
+								ccFrame.X or 0,
+								ccFrame.Y or 0,
+								ccFrame.Z or 0,
+								(ccFrame:ToEulerAnglesXYZ() or CFrame.new()):GetXRotation(),
+								(ccFrame:ToEulerAnglesXYZ() or CFrame.new()):GetYRotation(),
+								(ccFrame:ToEulerAnglesXYZ() or CFrame.new()):GetZRotation()
+							},
+							VVelocity = {
+								SaveStates[SaveState][Frame].VVelocity.X or 0,
+								SaveStates[SaveState][Frame].VVelocity.Y or 0,
+								SaveStates[SaveState][Frame].VVelocity.Z or 0
+							},
+							CCameraCFrame = {
+								cCameraCFrame.X or 0,
+								cCameraCFrame.Y or 0,
+								cCameraCFrame.Z or 0,
+								(cCameraCFrame:ToEulerAnglesXYZ() or CFrame.new()):GetXRotation(),
+								(cCameraCFrame:ToEulerAnglesXYZ() or CFrame.new()):GetYRotation(),
+								(cCameraCFrame:ToEulerAnglesXYZ() or CFrame.new()):GetZRotation()
+							},
+							time = SaveStates[SaveState][Frame].time,
+							AAnimation = SaveStates[SaveState][Frame].AAnimation,
+							AAnimationChanged = SaveStates[SaveState][Frame].AAnimationChanged
+						})
+					end
 				end
 			end
 			writefile(mapClone.Settings.MapName.Value .. ".json", HttpService:JSONEncode(TAS))
