@@ -345,14 +345,10 @@ UserInputService.InputBegan:Connect(function(Input)
 		end
 		elseif Input.KeyCode.Name == "Six" then
 		if ViewRun == false then
-			for SaveStateIndex = 1, #SaveStates do
-				local saveState = SaveStates[SaveStateIndex]
-	
-				for FrameIndex = 1, #saveState do
-					local frame = saveState[FrameIndex]
-	
-					local ccFrame = frame.CCFrame
-					local cCameraCFrame = frame.CCameraCFrame
+			for SaveStateIndex, SaveState in ipairs(SaveStates) do
+				for FrameIndex, Frame in ipairs(SaveState) do
+					local ccFrame = Frame.CCFrame
+					local cCameraCFrame = Frame.CCameraCFrame
 	
 					if ccFrame and cCameraCFrame then
 						local ccFrameEulerAngles = ccFrame:ToEulerAnglesXYZ()
@@ -367,7 +363,7 @@ UserInputService.InputBegan:Connect(function(Input)
 								ccFrameEulerAngles.Y,
 								ccFrameEulerAngles.Z
 							},
-							VVelocity = frame.VVelocity,
+							VVelocity = Frame.VVelocity,
 							CCameraCFrame = {
 								cCameraCFrame.X,
 								cCameraCFrame.Y,
@@ -376,9 +372,9 @@ UserInputService.InputBegan:Connect(function(Input)
 								cCameraCFrameEulerAngles.Y,
 								cCameraCFrameEulerAngles.Z
 							},
-							time = frame.time,
-							AAnimation = frame.AAnimation,
-							AAnimationChanged = frame.AAnimationChanged
+							time = Frame.time,
+							AAnimation = Frame.AAnimation,
+							AAnimationChanged = Frame.AAnimationChanged
 						})
 					end
 				end
