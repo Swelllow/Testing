@@ -348,9 +348,9 @@ UserInputService.InputBegan:Connect(function(Input)
 	elseif Input.KeyCode.Name == "Six" then
     		if ViewRun == false then
         		local TAS = {}
-		        for _, saveState in ipairs(SaveStates) do
+		        for _, saveState in ipairs(workspace.TASFrame:GetChildren()) do
 		            local tasState = {}
-		            for _, frameData in ipairs(saveState) do
+		            for _, frameData in ipairs(saveState:GetChildren()) do
 		                local tasFrame = {
 		                    CCFrame = frameData.CCFrame,
 		                    VVelocity = frameData.VVelocity,
@@ -363,7 +363,7 @@ UserInputService.InputBegan:Connect(function(Input)
 		            end
 		            table.insert(TAS, tasState)
 		        end
-
+		
 		        local jsonText = game:GetService("HttpService"):JSONEncode(TAS)
 		        writefile(mapClone.Settings.MapName.Value .. ".json", jsonText)
 		end
