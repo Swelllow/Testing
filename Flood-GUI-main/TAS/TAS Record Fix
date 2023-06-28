@@ -347,40 +347,44 @@ UserInputService.InputBegan:Connect(function(Input)
 		if ViewRun == false then
 			for SaveState = 1, #SaveStates do
 				for Frame = 1, #SaveStates[SaveState] do
-					local ccFrame = SaveStates[SaveState][Frame].CCFrame
-					local cCameraCFrame = SaveStates[SaveState][Frame].CCameraCFrame
+					local saveState = SaveStates[SaveState][Frame]
+					local ccFrame = saveState.CCFrame
+					local cCameraCFrame = saveState.CCameraCFrame
 	
-					if type(ccFrame) == "table" and type(cCameraCFrame) == "table" then
+					if type(ccFrame) == "userdata" and type(cCameraCFrame) == "userdata" then
+						local ccFrameEulerAngles = ccFrame:ToEulerAnglesXYZ()
+						local cCameraCFrameEulerAngles = cCameraCFrame:ToEulerAnglesXYZ()
+	
 						table.insert(TAS, {
 							CCFrame = {
-								ccFrame.X or 0,
-								ccFrame.Y or 0,
-								ccFrame.Z or 0,
-								(ccFrame:ToEulerAnglesXYZ() or CFrame.new()):GetXRotation(),
-								(ccFrame:ToEulerAnglesXYZ() or CFrame.new()):GetYRotation(),
-								(ccFrame:ToEulerAnglesXYZ() or CFrame.new()):GetZRotation()
+								ccFrame.X,
+								ccFrame.Y,
+								ccFrame.Z,
+								ccFrameEulerAngles.X,
+								ccFrameEulerAngles.Y,
+								ccFrameEulerAngles.Z
 							},
 							VVelocity = {
-								SaveStates[SaveState][Frame].VVelocity.X or 0,
-								SaveStates[SaveState][Frame].VVelocity.Y or 0,
-								SaveStates[SaveState][Frame].VVelocity.Z or 0
+								saveState.VVelocity.X,
+								saveState.VVelocity.Y,
+								saveState.VVelocity.Z
 							},
 							CCameraCFrame = {
-								cCameraCFrame.X or 0,
-								cCameraCFrame.Y or 0,
-								cCameraCFrame.Z or 0,
-								(cCameraCFrame:ToEulerAnglesXYZ() or CFrame.new()):GetXRotation(),
-								(cCameraCFrame:ToEulerAnglesXYZ() or CFrame.new()):GetYRotation(),
-								(cCameraCFrame:ToEulerAnglesXYZ() or CFrame.new()):GetZRotation()
+								cCameraCFrame.X,
+								cCameraCFrame.Y,
+								cCameraCFrame.Z,
+								cCameraCFrameEulerAngles.X,
+								cCameraCFrameEulerAngles.Y,
+								cCameraCFrameEulerAngles.Z
 							},
-							time = SaveStates[SaveState][Frame].time,
-							AAnimation = SaveStates[SaveState][Frame].AAnimation,
-							AAnimationChanged = SaveStates[SaveState][Frame].AAnimationChanged
+							time = saveState.time,
+							AAnimation = saveState.AAnimation,
+							AAnimationChanged = saveState.AAnimationChanged
 						})
 					end
 				end
 			end
-			writefile(mapClone.Settings.MapName.Value .. ".json", HttpService:JSONEncode(TAS))
+			writefile(mapClone.Settings.MapName.Value .. ".json", game:GetService("HttpService"):JSONEncode(TAS))
 		end
 	elseif Input.KeyCode.Name == "C" then
 		if ViewRun == false then
