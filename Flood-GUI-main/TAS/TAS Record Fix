@@ -241,16 +241,17 @@ UserInputService.InputBegan:Connect(function(Input)
 		end
 	elseif Input.KeyCode.Name == "One" then
 		if ViewRun == false then
+			local savestate = {}
 			for i = 1, #Pos do
-				table.insert(SaveStates, {
-					[i] = Pos[i]
-				})
+				table.insert(savestate, Pos[i])
 			end
+			table.insert(SaveStates, savestate)
 			SaveStatesCountOk = SaveStatesCountOk + 1
 			SaveStatesCount.Text = "Savestates " .. tonumber(SaveStatesCountOk)
 			Pos = {}
 			FrameGo = {}
 		end
+
 	elseif Input.KeyCode.Name == "Seven" then
 		if ViewRun == false and PauseIt == true then
 		end
