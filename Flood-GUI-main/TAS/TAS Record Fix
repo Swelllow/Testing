@@ -242,12 +242,13 @@ UserInputService.InputBegan:Connect(function(Input)
 		end
 	elseif Input.KeyCode.Name == "One" then
 		if ViewRun == false then
-			for i = 1, #Pos do
-				table.insert(SaveStates, {
-					[i] = Pos[i]
-				})
-			end
-			SaveStatesCountOk = SaveStatesCountOk + 1
+	        	local frames = {}
+	        	for i = 1, #Pos do
+	            	table.insert(frames, Pos[i])
+	        	end
+	        	table.insert(SaveStates, frames)
+	        
+	        	SaveStatesCountOk = SaveStatesCountOk + 1
 			SaveStatesCount.Text = "Savestates " .. tonumber(SaveStatesCountOk)
 			Pos = {}
 			FrameGo = {}
