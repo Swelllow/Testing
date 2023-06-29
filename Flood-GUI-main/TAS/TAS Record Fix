@@ -213,8 +213,7 @@ RunService:BindToRenderStep("ScriptPos", 1, function()
             CCameraCFrame = Workspace.CurrentCamera.CFrame,
             time = os.clock() - TimeForGame - TimeSubtractPause
         })
-        TextForTime.Text = tostring(math.floor((os.clock() - TimeForGame - TimeSubtractPause) / 60)) .. ":" .. ("0" .. tostring(math.floor((os.clock() - TimeForGame - TimeSubtractPause) % 60))) .. "." .. "0" .. tostring(math.floor((os.clock() - TimeForGame - TimeSubtractPause) * 1000 % 1000)))
-
+        TextForTime.Text = tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) / 60))) .. ":" .. ("0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) % 60)))) .. "." .. "0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) * 1000 % 1000)))
         if #SaveStates < 1 then
             for i = 1, #Pos do
                 table.insert(SaveStates, {
@@ -346,41 +345,39 @@ UserInputService.InputBegan:Connect(function(Input)
 			TextForTime.Text = tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) / 60))) .. ":" .. ("0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) % 60)))) .. "." .. "0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) * 1000 % 1000)))
 		end
 	elseif Input.KeyCode.Name == "Six" then
-	    if ViewRun == false then
-	        local TAS = {}
-	        for _, saveState in ipairs(workspace.TASFrame:GetChildren()) do
-	            local tasState = {}
-	            for _, frameData in ipairs(saveState:GetChildren()) do
-	                local tasFrame = {
-	                    CCFrame = frameData.CCFrame,
-	                    VVelocity = frameData.VVelocity,
-	                    CCameraCFrame = frameData.CCameraCFrame,
-	                    time = frameData.time,
-	                    AAnimation = frameData.AAnimation,
-	                    AAnimationChanged = frameData.AAnimationChanged
-	                }
-	                table.insert(tasState, tasFrame)
+	        if ViewRun == false then
+	            for SaveState = 1, #SaveStates do
+	                for Frame = 1, #SaveStates[SaveState] do
+	                    table.insert(TAS, {
+	                        CCFrame = {
+	                            SaveStates[SaveState][Frame].CCFrame.X,
+	                            SaveStates[SaveState][Frame].CCFrame.Y,
+	                            SaveStates[SaveState][Frame].CCFrame.Z,
+	                            SaveStates[SaveState][Frame].CCFrame:ToEulerAnglesXYZ().X,
+	                            SaveStates[SaveState][Frame].CCFrame:ToEulerAnglesXYZ().Y,
+	                            SaveStates[SaveState][Frame].CCFrame:ToEulerAnglesXYZ().Z
+	                        },
+	                        VVelocity = {
+	                            SaveStates[SaveState][Frame].VVelocity.X,
+	                            SaveStates[SaveState][Frame].VVelocity.Y,
+	                            SaveStates[SaveState][Frame].VVelocity.Z
+	                        },
+	                        CCameraCFrame = {
+	                            SaveStates[SaveState][Frame].CCameraCFrame.X,
+	                            SaveStates[SaveState][Frame].CCameraCFrame.Y,
+	                            SaveStates[SaveState][Frame].CCameraCFrame.Z,
+	                            SaveStates[SaveState][Frame].CCameraCFrame:ToEulerAnglesXYZ(),
+	                            SaveStates[SaveState][Frame].CCameraCFrame:ToEulerAnglesXYZ(),
+	                            SaveStates[SaveState][Frame].CCameraCFrame:ToEulerAnglesXYZ()
+	                        },
+	                        time = SaveStates[SaveState][Frame].time,
+	                        AAnimation = SaveStates[SaveState][Frame].AAnimation,
+	                        AAnimationChanged = SaveStates[SaveState][Frame].AAnimationChanged
+	                    })
+	                end
 	            end
-	            table.insert(TAS, tasState)
+	            writefile(mapClone.Settings.MapName.Value .. ".json", HttpService:JSONEncode(TAS))
 	        end
-	
-	        local jsonText = game:GetService("HttpService"):JSONEncode(TAS)
-	
-	        -- Print the generated JSON text for debugging
-	        print(jsonText)
-	
-	        -- Attempt to write the file and handle any errors
-	        local success, errorMessage = pcall(function()
-	            writefile(mapClone.Settings.MapName.Value .. ".json", jsonText)
-	        end)
-	
-	        if success then
-	            print("File saved successfully.")
-	        else
-	            warn("File saving error:", errorMessage)
-	        end
-	    end
-	
 	elseif Input.KeyCode.Name == "C" then
 		if ViewRun == false then
 			local Target = Mouse.Target
