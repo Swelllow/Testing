@@ -346,29 +346,20 @@ UserInputService.InputBegan:Connect(function(Input)
 		end
 	elseif Input.KeyCode.Name == "Six" then
 	        if ViewRun == false then
+		    TAS = {}
 		    for SaveState = 1, #SaveStates do
+		        local frames = {}
 		        for Frame = 1, #SaveStates[SaveState] do
-		            table.insert(TAS, {
-		                CCFrame = {
-		                    SaveStates[SaveState][Frame].CCFrame.X,
-		                    SaveStates[SaveState][Frame].CCFrame.Y,
-		                    SaveStates[SaveState][Frame].CCFrame.Z
-		                },
-		                VVelocity = {
-		                    SaveStates[SaveState][Frame].VVelocity.X,
-		                    SaveStates[SaveState][Frame].VVelocity.Y,
-		                    SaveStates[SaveState][Frame].VVelocity.Z
-		                },
-		                CCameraCFrame = {
-		                    SaveStates[SaveState][Frame].CCameraCFrame.X,
-		                    SaveStates[SaveState][Frame].CCameraCFrame.Y,
-		                    SaveStates[SaveState][Frame].CCameraCFrame.Z
-		                },
+		            table.insert(frames, {
+		                CCFrame = SaveStates[SaveState][Frame].CCFrame,
+		                VVelocity = SaveStates[SaveState][Frame].VVelocity,
+		                CCameraCFrame = SaveStates[SaveState][Frame].CCameraCFrame,
 		                time = SaveStates[SaveState][Frame].time,
 		                AAnimation = SaveStates[SaveState][Frame].AAnimation,
 		                AAnimationChanged = SaveStates[SaveState][Frame].AAnimationChanged
 		            })
 		        end
+		        table.insert(TAS, frames)
 		    end
 		    writefile(mapClone.Settings.MapName.Value .. ".json", HttpService:JSONEncode(TAS))
 		end
