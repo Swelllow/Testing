@@ -214,11 +214,14 @@ RunService:BindToRenderStep("ScriptPos", 1, function()
             time = os.clock() - TimeForGame - TimeSubtractPause
         })
         TextForTime.Text = tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) / 60))) .. ":" .. ("0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) % 60)))) .. "." .. "0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) * 1000 % 1000)))
+
         if #SaveStates < 1 then
+            -- Clear any existing save states
+            SaveStates = {}
+
+            -- Insert all frames directly into the SaveStates table
             for i = 1, #Pos do
-                table.insert(SaveStates, {
-                    [i] = Pos[i]
-                })
+                table.insert(SaveStates, Pos[i])
             end
         end
     end
