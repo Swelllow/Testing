@@ -38,6 +38,7 @@ Map.PrimaryPart = (function() -- new spawn finder by "_tomato." on discord
 end)()
 local mapClone = Map:Clone()
 mapClone.Parent = Workspace
+mapClone:MoveTo(Vector3.new(0, 1000, 0))
 local Pos = {}
 local TAS = {}
 local ViewRunTable = {}
@@ -202,29 +203,26 @@ Animate.playAnimation = function(Anim, AnimSpeed)
 		end
 	end
 end
-
-local SaveStates = {}  -- Initialize an empty table to store the recorded states
-local TAS = {}  -- Initialize an empty table to store the TAS data
-
 RunService:BindToRenderStep("ScriptPos", 1, function()
-	if PauseIt == false and ViewRun == false then
-		table.insert(SaveStates, {
-    			CCFrame = Character().HumanoidRootPart.CFrame,
-    			VVelocity = Character().HumanoidRootPart.Velocity,
-    			CCameraCFrame = Workspace.CurrentCamera.CFrame,
-    			time = os.clock() - TimeForGame - TimeSubtractPause,
-    			AAnimation = AnimationState,
-    			AAnimationChanged = AnimationHowManyChange
-		})
-		TextForTime.Text = tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) / 60))) .. ":" .. ("0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) % 60)))) .. "." .. "0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) * 1000 % 1000)))
-		if #SaveStates < 1 then
-			for i = 1, #Pos do
-				table.insert(SaveStates, {
-					[i] = Pos[i]
-				})
-			end
-		end
-	end
+    if PauseIt == false and ViewRun == false then
+        table.insert(Pos, {
+            CCFrame = Character().HumanoidRootPart.CFrame,
+            VVelocity = Character().HumanoidRootPart.Velocity,
+            AAnimation = AnimationState,
+            AAnimationChanged = AnimationHowManyChange,
+            CCameraCFrame = Workspace.CurrentCamera.CFrame,
+            time = os.clock() - TimeForGame - TimeSubtractPause
+        })
+        TextForTime.Text = tostring(math.floor((os.clock() - TimeForGame - TimeSubtractPause) / 60)) .. ":" .. ("0" .. tostring(math.floor((os.clock() - TimeForGame - TimeSubtractPause) % 60))) .. "." .. "0" .. tostring(math.floor((os.clock() - TimeForGame - TimeSubtractPause) * 1000 % 1000)))
+
+        if #SaveStates < 1 then
+            for i = 1, #Pos do
+                table.insert(SaveStates, {
+                    [i] = Pos[i]
+                })
+            end
+        end
+    end
 end)
 UserInputService.InputBegan:Connect(function(Input)
 	if Input.KeyCode.Name == "CapsLock" then
@@ -245,17 +243,16 @@ UserInputService.InputBegan:Connect(function(Input)
 		end
 	elseif Input.KeyCode.Name == "One" then
 		if ViewRun == false then
-			local savestate = {}
 			for i = 1, #Pos do
-				table.insert(savestate, Pos[i])
+				table.insert(SaveStates, {
+					[i] = Pos[i]
+				})
 			end
-			table.insert(SaveStates, savestate)
 			SaveStatesCountOk = SaveStatesCountOk + 1
 			SaveStatesCount.Text = "Savestates " .. tonumber(SaveStatesCountOk)
 			Pos = {}
 			FrameGo = {}
 		end
-
 	elseif Input.KeyCode.Name == "Seven" then
 		if ViewRun == false and PauseIt == true then
 		end
@@ -284,7 +281,9 @@ UserInputService.InputBegan:Connect(function(Input)
 	elseif Input.KeyCode.Name == "Three" then
 		if ViewRun == false then
 			for i = 1, #SaveStates[#SaveStates] do
-				table.insert(Pos, SaveStates[#SaveStates][i])
+				Pos = {
+					[i] = SaveStates[#SaveStates][i]
+				}
 			end
 			Character().HumanoidRootPart.CFrame = Pos[#Pos].CCFrame
 			Character().HumanoidRootPart.Velocity = Pos[#Pos].VVelocity
@@ -347,28 +346,41 @@ UserInputService.InputBegan:Connect(function(Input)
 			TextForTime.Text = tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) / 60))) .. ":" .. ("0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) % 60)))) .. "." .. "0" .. tostring((math.floor((os.clock() - TimeForGame - TimeSubtractPause) * 1000 % 1000)))
 		end
 	elseif Input.KeyCode.Name == "Six" then
-    		if ViewRun == false then
-        		local TAS = {}
-		        for _, saveState in ipairs(workspace.TASFrame:GetChildren()) do
-		            local tasState = {}
-		            for _, frameData in ipairs(saveState:GetChildren()) do
-		                local tasFrame = {
-		                    CCFrame = frameData.CCFrame,
-		                    VVelocity = frameData.VVelocity,
-		                    CCameraCFrame = frameData.CCameraCFrame,
-		                    time = frameData.time,
-		                    AAnimation = frameData.AAnimation,
-		                    AAnimationChanged = frameData.AAnimationChanged
-		                }
-		                table.insert(tasState, tasFrame)
-		            end
-		            table.insert(TAS, tasState)
-		        end
-		
-		        local jsonText = game:GetService("HttpService"):JSONEncode(TAS)
-		        writefile(mapClone.Settings.MapName.Value .. ".json", jsonText)
-		end
-
+	    if ViewRun == false then
+	        local TAS = {}
+	        for _, saveState in ipairs(workspace.TASFrame:GetChildren()) do
+	            local tasState = {}
+	            for _, frameData in ipairs(saveState:GetChildren()) do
+	                local tasFrame = {
+	                    CCFrame = frameData.CCFrame,
+	                    VVelocity = frameData.VVelocity,
+	                    CCameraCFrame = frameData.CCameraCFrame,
+	                    time = frameData.time,
+	                    AAnimation = frameData.AAnimation,
+	                    AAnimationChanged = frameData.AAnimationChanged
+	                }
+	                table.insert(tasState, tasFrame)
+	            end
+	            table.insert(TAS, tasState)
+	        end
+	
+	        local jsonText = game:GetService("HttpService"):JSONEncode(TAS)
+	
+	        -- Print the generated JSON text for debugging
+	        print(jsonText)
+	
+	        -- Attempt to write the file and handle any errors
+	        local success, errorMessage = pcall(function()
+	            writefile(mapClone.Settings.MapName.Value .. ".json", jsonText)
+	        end)
+	
+	        if success then
+	            print("File saved successfully.")
+	        else
+	            warn("File saving error:", errorMessage)
+	        end
+	    end
+	
 	elseif Input.KeyCode.Name == "C" then
 		if ViewRun == false then
 			local Target = Mouse.Target
