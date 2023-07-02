@@ -70,7 +70,6 @@ local function SetUpMap()
     SetPrimaryPart()
     Map = game.Workspace.Multiplayer.Map:Clone()
     Map.Parent = game.Workspace
-    Map:MoveTo(Vector3.new(0,1000,0))
     LocalPlayer.Character.Head:Destroy()
     LocalPlayer.CharacterAdded:Wait()
     LocalPlayer.Character:WaitForChild("Humanoid")
@@ -81,34 +80,34 @@ local function SetUpMap()
     task.wait(0.5)
     LocalPlayer.Character.Humanoid.WalkSpeed = 0
     LocalPlayer.Character.Humanoid.JumpPower = 0
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Map.PrimaryPart.Position) + Vector3.new(0,Map.PrimaryPart.Size.Y/2,0) + Vector3.new(0,LocalPlayer.Character.HumanoidRootPart.Size.Y/2,0) + Vector3.new(0,LocalPlayer.Character["Left Leg"].Size.Y,0)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Map.PrimaryPart.Position) + Vector3.new(0, Map.PrimaryPart.Size.Y/2, 0) + Vector3.new(0, LocalPlayer.Character.HumanoidRootPart.Size.Y/2, 0) + Vector3.new(0, LocalPlayer.Character["Left Leg"].Size.Y, 0)
     task.wait(0.5)
     LocalPlayer.Character.HumanoidRootPart.Anchored = true
     LocalPlayer.Character.Humanoid.WalkSpeed = 20
     LocalPlayer.Character.Humanoid.JumpPower = 50
-    table.insert(Savestates,{{
+    table.insert(Savestates, {
         CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame,
         CameraCFrame = game.Workspace.CurrentCamera.CFrame,
-        Velocity = Vector3.new(0,0,0),
-        Animation = {"idle",0},
+        Velocity = Vector3.new(0, 0, 0),
+        Animation = {"idle", 0},
         Time = 0
-    }})
+    })
     SetUpGui()
     SenvAnimation = getsenv(game.Players.LocalPlayer.Character.Animate)
     PlayAnimation = SenvAnimation.playAnimation
     TimePauseHolder = tick()
     TimeStart = tick()
-    function SenvAnimation.playAnimation(a,b)
+    function SenvAnimation.playAnimation(a, b)
         if not Pause then
-            AnimationState = {a,b}
-            PlayAnimation(AnimationState[1],AnimationState[2], LocalPlayer.Character.Humanoid)
+            AnimationState = {a, b}
+            PlayAnimation(AnimationState[1], AnimationState[2], LocalPlayer.Character.Humanoid)
         end
     end
-    for i,v in ipairs(Map.Interactives:GetDescendants()) do
-    	if v:IsA('BasePart') and not v.ClassName == "Model" then
-    		v.Transparency = 0
-    		v.CanCollide = not v.CanCollide
-    	end
+    for i, v in ipairs(Map.Interactives:GetDescendants()) do
+        if v:IsA('BasePart') and not v.ClassName == "Model" then
+            v.Transparency = 0
+            v.CanCollide = not v.CanCollide
+        end
     end
 end
 
