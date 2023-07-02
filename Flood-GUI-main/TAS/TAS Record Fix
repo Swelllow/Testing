@@ -174,7 +174,7 @@ local function CollisionToggler()
     if MouseTarget.CanCollide then
         MouseTarget.Transparency = 0
     else
-        MouseTarget.Transparency = 1
+        MouseTarget.Transparency = 0.6
     end
 end
 local function SaveRun()
@@ -226,7 +226,7 @@ UserInputService.InputBegan:Connect(function(Key,Typing)
             RemoveSavestate()
         elseif Key == "Three" then
             BackSavestate()
-        elseif Key == "Four" then
+        elseif Key == "C" then
             CollisionToggler()
         elseif Key == "Five" then
             SaveRun()
