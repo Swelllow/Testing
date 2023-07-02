@@ -126,7 +126,7 @@ local credits = c:NewSection("Credits")
 
 getgenv().wow = true
 
--- Coins Tracker All credits to Moz
+-- Coins Tracker
 local players = game:GetService("Players")
 local localPlayer = players.LocalPlayer
 local playerGui = localPlayer.PlayerGui
@@ -135,13 +135,13 @@ local coinsAmount = playerGui.MenuGui.Shop.Currencies.Coins.Amount
 local coinsLabel = statTracker:NewLabel("Coins Earned: 0")
 local initialCoins = tonumber(coinsAmount.Text)
 
--- Gems Tracker All credits to Moz
+-- Gems Tracker
 local gemsAmount = playerGui.MenuGui.Shop.Currencies.Gems.Amount
 
 local gemsLabel = statTracker:NewLabel("Gems Earned: 0")
 local initialGems = tonumber(gemsAmount.Text)
 
--- XP Tracker All credits to Moz
+-- XP Tracker
 local xpEarnedAmount = playerGui.MenuGui.Goals.Window.Content.Pages.Stats.xpEarned.Amount
 
 local xpLabel = statTracker:NewLabel("XP Earned: 0")
@@ -203,12 +203,16 @@ end)
 
 local startTime = os.time()
 
-local timerLabel = statTracker:NewLabel("Timer: 0 seconds")
+local timerLabel = statTracker:NewLabel("Timer: 00:00:00")
 
 spawn(function()
     while true do
         local currentTime = os.time() - startTime
-        timerLabel:UpdateLabel("Timer: " .. currentTime .. " seconds")
+        local hours = math.floor(currentTime / 3600)
+        local minutes = math.floor((currentTime % 3600) / 60)
+        local seconds = currentTime % 60
+        local timeString = string.format("%02d:%02d:%02d", hours, minutes, seconds)
+        timerLabel:UpdateLabel("Timer: " .. timeString)
         wait(1)
     end
 end)
@@ -832,10 +836,9 @@ tas:NewToggle("Auto-Leave", "Automatically leaves when player joins!", function(
 	getgenv().autoleave = t
 end)
 credits:NewLabel("New Anti-Kick by AltLexon#6917")
-credits:NewLabel("TAS script by Voiz#5668 & Moz")
+credits:NewLabel("TAS script by Voiz#5668 and Moz")
 credits:NewLabel("TAS File Minifier by iaan#8193")
-credits:NewLabel("Tas Player by Tomato & Moz")
-credits:NewLabel("Stat Tracker by Moz")
+credits:NewLabel("Tas Player by Tomato and Moz")
 credits:NewLabel("Other small things by Moz")
 credits:NewLabel("Everything else by Tomato")
 wait()
