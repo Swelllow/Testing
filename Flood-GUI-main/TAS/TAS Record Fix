@@ -1,5 +1,5 @@
 -- Fixed format to match Tas player Moz
-print ("Started")
+print("Started")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -16,15 +16,17 @@ local SenvAnimation
 local PlayAnimation
 local TimeStart
 local TimeText
+
 local function ReturnPlayerInfo()
     return {
-            CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame,
-            CameraCFrame = Workspace.CurrentCamera.CFrame,
-            Velocity = LocalPlayer.Character.HumanoidRootPart.Velocity,
-            Animation = AnimationState,
-            Time = tick() - TimeStart - TimePaused,
+        CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame,
+        CameraCFrame = Workspace.CurrentCamera.CFrame,
+        Velocity = LocalPlayer.Character.HumanoidRootPart.Velocity,
+        Animation = AnimationState,
+        Time = tick() - TimeStart - TimePaused,
     }
 end
+
 local function SetPrimaryPart()
     local Map = game.Workspace.Multiplayer:WaitForChild("Map")
     local Part = nil
@@ -39,7 +41,7 @@ local function SetPrimaryPart()
         end
     end)
     if not foundSpawn then
-        warn("unable to find spawn part")
+        warn("Unable to find 'Spawn' object:", errorValue)
         return
     end
     Map.PrimaryPart = Part
@@ -108,6 +110,10 @@ local function SetUpMap()
         end
     end
 end
+
+ReplicatedStorage.Remote.StartClientMapTimer.OnClientEvent:Wait()
+task.wait(1)
+SetUpMap()
 
 local function SetTimeGui()
     local TimePlayed = tick() - TimeStart - TimePaused
