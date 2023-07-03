@@ -127,6 +127,36 @@ local gemsAmount = playerGui.MenuGui.Shop.Currencies.Gems.Amount
 local gemsLabel = statTracker:NewLabel("Gems Earned: 0")
 local initialGems = tonumber(gemsAmount.Text)
 
+-- Level Tracker
+local players = game:GetService("Players")
+local levelLabel = statTracker:NewLabel("Level Earned: 0")
+local playerLevels = {}
+
+local function trackLevel(player)
+    local levelPath = player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid:FindFirstChild("LvlText")
+    if levelPath and levelPath:IsA("TextLabel") then
+        local initialLevel = playerLevels[player]
+        local currentLevel = levelPath.Text
+        if initialLevel and currentLevel ~= initialLevel then
+            local levelEarned = tonumber(currentLevel) - tonumber(initialLevel)
+            levelLabel:UpdateLabel("Level Earned: " .. levelEarned)
+        end
+        playerLevels[player] = currentLevel
+    end
+end
+
+local function trackAllLevels()
+    for _, player in ipairs(players:GetPlayers()) do
+        trackLevel(player)
+    end
+end
+
+spawn(function()
+    while wait(1) do
+        trackAllLevels()
+    end
+end)
+
 -- XP Tracker
 local success, xpEarnedAmount = pcall(function()
     return playerGui.MenuGui.Goals.Window.Content.Pages.Stats.xpEarned.Amount
@@ -232,32 +262,6 @@ end)
 loc:NewSlider("JumpPower", "Change your jumppower!", 200, 50, function(t)
 	game.Players.LocalPlayer.Character.Humanoid.JumpPower = t
 end)
-loc:NewToggle("Teleport on Ctrl+Click ⚠️", "Toggle teleport on Ctrl+Click", function(toggled)
-    TeleportEnabled = toggled
-end)
-
-local UIS = game:GetService("UserInputService")
-local Player = game.Players.LocalPlayer
-local Mouse = Player:GetMouse()
-
-function GetCharacter()
-    return game.Players.LocalPlayer.Character
-end
-
-function Teleport(pos)
-    local Char = GetCharacter()
-    if Char then
-        Char:MoveTo(pos)
-    end
-end
-
-local function InputHandler(input)
-    if TeleportEnabled and input.UserInputType == Enum.UserInputType.MouseButton1 and UIS:IsKeyDown(Enum.KeyCode.LeftControl) then
-        Teleport(Mouse.Hit.p)
-    end
-end
-
-UIS.InputBegan:Connect(InputHandler)
 
 loc:NewKeybind("Vip Emote", "Activates Vip emote!", Enum.KeyCode.V, function()
     local character = game:GetService("Players").LocalPlayer.Character
@@ -343,6 +347,40 @@ blatant:NewButton("Lag Server", "Equip buddy then press", function()
 		game:GetService("ReplicatedStorage").Remote.ConfirmItem:FireServer(key, 40)
 	end
 end)
+
+local infJumpEnabled = false
+
+blatant:NewToggle("Infinite Jump", "Jump while freefalling!", function()
+    infJumpEnabled = not infJumpEnabled
+end)
+
+blatant:NewToggle("Teleport on Ctrl+Click ⚠️", "Toggle teleport on Ctrl+Click", function(toggled)
+    TeleportEnabled = toggled
+end)
+
+local UIS = game:GetService("UserInputService")
+local Player = game.Players.LocalPlayer
+local Mouse = Player:GetMouse()
+
+function GetCharacter()
+    return game.Players.LocalPlayer.Character
+end
+
+function Teleport(pos)
+    local Char = GetCharacter()
+    if Char then
+        Char:MoveTo(pos)
+    end
+end
+
+local function InputHandler(input)
+    if TeleportEnabled and input.UserInputType == Enum.UserInputType.MouseButton1 and UIS:IsKeyDown(Enum.KeyCode.LeftControl) then
+        Teleport(Mouse.Hit.p)
+    end
+end
+
+UIS.InputBegan:Connect(InputHandler)
+
 local camera = game.Workspace.CurrentCamera
 local targetPosition = Vector3.new(-25.5, -144.3449249267578, 138.50001525878906)
 local play = false
@@ -409,7 +447,7 @@ local vuEnabled = false
 
 local VirtualUser = game:GetService("VirtualUser")
 
-auto:NewToggle("Anti-Afk", "Prevents AFK kick", function(t)
+auto:NewToggle("Anti-Afk", "Prevents AFK kick", function(t) --Made by Moz
     if t then
         game:GetService("Players").LocalPlayer.Idled:connect(function()
             VirtualUser:CaptureController()
@@ -473,7 +511,7 @@ else
     if SkipMirroredMaps[mapName] then
         CLMAIN.newAlert('Map cannot be mirrored.')
     else
-        if Map:WaitForChild('Settings'):FindFirstChild("_MirrorMap") then
+        if Map:WaitForChild('Settings'):FindFirstChild("_MirrorMap") then --mirrored functions all fixed by moz
             CLMAIN.newAlert('Map is not mirrored.')
             Mirrored = false
         else
@@ -578,7 +616,7 @@ Loop = RS.Heartbeat:connect(function(DeltaTime)
             RayParts:Destroy()
             Animate.playAnimation = PlayAnim
             CLMAIN.newAlert('TAS Run Finished!', Color3.new(0, 1, 0))
-            CLMAIN.newAlert('TAS Player By Tomato', Color3.new(0, 1, 0))
+            CLMAIN.newAlert('TAS Player By Tomato and Moz', Color3.new(0, 1, 0))
         elseif (os.clock() - TimeStart) >= TAS[i].time then
             OldFrame = i
             local CF = TAS[i].CCFrame
@@ -636,11 +674,6 @@ end
 	end
 end)
 
-local infJumpEnabled = false
-
-blatant:NewToggle("Infinite Jump", "Jump while freefalling!", function()
-    infJumpEnabled = not infJumpEnabled
-end)
 
 game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessedEvent)
     if infJumpEnabled and not gameProcessedEvent then
@@ -678,76 +711,50 @@ auto:NewButton("Get TAS files", "Downloads TAS files!", function()
     clmain.newAlert("Finished Downloading TAS files")
 end)
 
-tas:NewButton('Fix Create-TAS', 'Fix', function()
-    local Workspace = game:GetService('Workspace')
-    local LP = game.Players.LocalPlayer
-    if Workspace.Multiplayer:FindFirstChild('Map') then
-        Workspace.Multiplayer.Map:Destroy()
+tas:NewButton("Create-TAS for CM", "Create a TAS for CM, Press then enter lift.", function()
+    game.Workspace.DescendantAdded:Connect(function(child)
+        if child.ClassName == "Sound" then
+            child:Destroy()
+        end
+    end)
+
+    local Fix = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Recorder%20for%20CM", true))()
     end
-    local Map = Workspace.Multiplayer:WaitForChild('Map')
-    local Spawn = (function() -- this whole function was made by Epix
-            local Workspace = game:GetService("Workspace")
-            local character = LP.Character
-            local characterPosition = character.HumanoidRootPart.Position -- only need to evaluate this once
-    
-            -- Get parts that have the character above them
-    
-            -- Part that's supposed to represent the character's "feet"
-            local dummyPart = Instance.new("Part")
-            dummyPart.Size = Vector3.one
-            dummyPart.Position = characterPosition - (Vector3.yAxis * 2)
-            dummyPart.Anchored = true
-            dummyPart.CanCollide = false
-            dummyPart.Parent = Workspace
-    
-            local overlapParams = OverlapParams.new()
-            overlapParams.FilterDescendantsInstances = {dummyPart} -- Only checking if bounding area intersects with "feet"
-            overlapParams.FilterType = Enum.RaycastFilterType.Whitelist
-    
-            local spawnCandidates = table.create(10)
-            for _, item in next, Map:GetDescendants() do
-                if not item:IsA("BasePart") or (item.Position - characterPosition).Magnitude > 10 then
-                    break
-                end
-    
-                -- If the part is flipped upside down, that is a problem, thus there is a check here
-                local facingUpVector
-                if item.CFrame.UpVector:Dot(Vector3.yAxis) >= 0 then facingUpVector = item.CFrame.UpVector else facingUpVector = -item.CFrame.UpVector end
-                local candidatesInArea = Workspace:GetPartBoundsInBox(
-                    item.CFrame + (facingUpVector * (item.Size.Y/2 + 0.25)),
-                    Vector3.new(item.Size.X, 0.5, item.Size.Z),
-                    overlapParams
-                )
-                for _, candidate in next, candidatesInArea do
-                    if candidate == dummyPart then
-                        table.insert(spawnCandidates, item)
+
+    local ButtonStuff = function()
+        while not game.Workspace:FindFirstChild("Map") do
+            wait()
+        end
+        
+        local Map = game.Workspace.Map
+        for i, v in pairs(Map:GetDescendants()) do
+            if v:IsA("Part") and v.Size == Vector3.new(3, 1, 3) then
+                v.Size = v.Size * 1.8
+                v.Color = Color3.fromRGB(255, 140, 0)
+                local selectbox = Instance.new("SelectionBox", v)
+                selectbox.Adornee = v
+                selectbox.Color3 = Color3.fromRGB(255, 140, 0)
+                getgenv().delayy = false
+                v.Touched:Connect(function(part)
+                    if not delayy then
+                        clmain.newAlert("Button Touched!", Color3.fromRGB(255, 140, 0))
+                        delayy = true
+                        wait(1)
+                        delayy = false
                     end
-                end
+                end)
             end
-    
-            dummyPart:Destroy()
-    
-            if #spawnCandidates >= 1 then
-                -- Prioritize invisible spawn parts parented to the map
-                for _, spawnCandidate in next, spawnCandidates do
-                    if spawnCandidate.CanCollide and (spawnCandidate.Transparency >= 0.8 or spawnCandidate.Parent == map) then
-                        return spawnCandidate
-                    end
-                end
-                -- Second pass: only needs to be CanCollide
-                for _, spawnCandidate in next, spawnCandidates do
-                    if spawnCandidate.CanCollide then
-                        return spawnCandidate
-                    end
-                end
-                -- Fall back to first in list
-                return spawnCandidates[1]
-            else
-                error("Failed to find spawn part!")
-            end
-    end)()
-    
-Spawn.Name = "Spawn"
+        end
+    end
+
+    Fix()
+    spawn(ButtonStuff) -- Use spawn() to run the function asynchronously
+end)
+
+tas:NewButton("Run-TAS For CM", "For CM only!", function()
+	loadstring(game:HttpGet('https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Player%20for%20CM'))
+	"TAS Player Fixed By Tomato with help of Moz"
 end)
 
 tas:NewButton("Create-TAS", "Create a TAS, Press then enter lift.", function()
@@ -791,10 +798,6 @@ tas:NewButton("Create-TAS", "Create a TAS, Press then enter lift.", function()
     spawn(ButtonStuff) -- Use spawn() to run the function asynchronously
 end)
 
-tas:NewButton("Run-TAS", "Press then enter lift!", function()
-	loadstring(game:HttpGet('https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Player'))
-	"TAS Player Fixed By Tomato with help from Epix"
-end)
 
 
 local oldindex
