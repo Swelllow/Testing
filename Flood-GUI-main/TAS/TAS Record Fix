@@ -29,15 +29,17 @@ local function SetPrimaryPart()
     local Map = game.Workspace.Multiplayer:WaitForChild("Map")
     local Part = nil
     local connections = {}
-    for i,v in ipairs(Map:GetChildren()) do
-        if v.Name == "Spawn" then
-            v.Name = "Part" -- Change the name to "Part"
-            Part = v
-            break
+    local foundSpawn, errorValue = pcall(function()
+        for i, v in ipairs(Map:GetChildren()) do
+            if v.Name == "Spawn" then
+                v.Name = "Part" -- Change the name to "Part"
+                Part = v
+                break
+            end
         end
-    end
-    if not Part then
-        error("Unable to find 'Spawn' object")
+    end)
+    if not foundSpawn then
+        warn("unable to find spawn part")
         return
     end
     Map.PrimaryPart = Part
