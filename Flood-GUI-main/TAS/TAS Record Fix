@@ -42,7 +42,7 @@ local function SetPrimaryPart()
     end)
     if not foundSpawn then
         warn("Unable to find 'Spawn' object:", errorValue)
-        return
+        Part = Map.PrimaryPart -- Use Map.PrimaryPart as a fallback
     end
     Map.PrimaryPart = Part
 end
@@ -68,6 +68,7 @@ local function SetUpGui()
 end
 
 local function SetUpMap()
+	SetPrimaryPart()
     local Map
     local CurrentInfo
     function game.ReplicatedStorage.Remote.ReqCharVars.OnClientInvoke() return {} end
@@ -111,9 +112,24 @@ local function SetUpMap()
     end
 end
 
+local function SetCharacterPosition()
+    local Map = game.Workspace.Multiplayer.Map
+    local PrimaryPart = Map.PrimaryPart
+    if PrimaryPart then
+        LocalPlayer.Character.HumanoidRootPart.CFrame =
+            CFrame.new(PrimaryPart.Position) +
+            Vector3.new(0, PrimaryPart.Size.Y / 2, 0) +
+            Vector3.new(0, LocalPlayer.Character.HumanoidRootPart.Size.Y / 2, 0) +
+            Vector3.new(0, LocalPlayer.Character["Left Leg"].Size.Y, 0)
+    else
+        warn("Unable to find 'PrimaryPart' in the map")
+    end
+end
+
 ReplicatedStorage.Remote.StartClientMapTimer.OnClientEvent:Wait()
 task.wait(1)
 SetUpMap()
+SetCharacterPosition() -- Call this function to set the character's position
 
 local function SetTimeGui()
     local TimePlayed = tick() - TimeStart - TimePaused
