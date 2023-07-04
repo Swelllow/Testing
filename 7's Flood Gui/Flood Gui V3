@@ -129,19 +129,17 @@ local initialGems = tonumber(gemsAmount.Text)
 
 -- Level Tracker
 local players = game:GetService("Players")
-local levelLabel = statTracker:NewLabel("Level Earned: 0")
-local playerLevels = {}
+local levelLabel = statTracker:NewLabel("Levels Earned: 0")
+local initialLevels = {}
 
 local function trackLevel(player)
-    local levelPath = player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid:FindFirstChild("LvlText")
-    if levelPath and levelPath:IsA("TextLabel") then
-        local initialLevel = playerLevels[player]
-        local currentLevel = levelPath.Text
-        if initialLevel and currentLevel ~= initialLevel then
-            local levelEarned = tonumber(currentLevel) - tonumber(initialLevel)
-            levelLabel:UpdateLabel("Level Earned: " .. levelEarned)
-        end
-        playerLevels[player] = currentLevel
+    local levelPath = player:WaitForChild("PlayerGui"):WaitForChild("MenuGui"):WaitForChild("Shop"):WaitForChild("PlayerInfo"):WaitForChild("LvlInfo"):WaitForChild("LvlText")
+    local levelText = levelPath.Text
+    local playerInitialLevel = tonumber(levelText:match("%d+"))
+    if playerInitialLevel then
+        local currentLevel = tonumber(levelText:match("%d+$"))
+        local levelsEarned = currentLevel - playerInitialLevel
+        levelLabel:UpdateLabel("Levels Earned: " .. levelsEarned)
     end
 end
 
