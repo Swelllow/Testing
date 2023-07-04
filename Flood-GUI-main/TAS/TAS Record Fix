@@ -104,16 +104,31 @@ local function SetUpMap()
             PlayAnimation(AnimationState[1],AnimationState[2], LocalPlayer.Character.Humanoid)
         end
     end
-    for i,v in ipairs(Map:GetChildren()) do
-        if v.Name == "Interactives" then
-            for _, part in ipairs(v:GetDescendants()) do
-                if part:IsA('BasePart') and not part:IsA('Model') then
-                    part.Transparency = 0
-                    part.CanCollide = not part.CanCollide
-                end
+    local function processInteractives(parent)
+        for _, part in ipairs(parent:GetChildren()) do
+            if part:IsA('BasePart') and not part:IsA('Model') then
+                part.Transparency = 0
+                part.CanCollide = not part.CanCollide
             end
-            break
         end
+    end
+
+    local function findInteractives(parent)
+        for _, child in ipairs(parent:GetChildren()) do
+            if child.Name == 'Interactives' then
+                processInteractives(child)
+                return true
+            elseif findInteractives(child) then
+                return true
+            end
+        end
+        return false
+    end
+
+    if findInteractives(Map) then
+        -- Interactives found and processed
+    else
+        warn("Interactives not found in Map")
     end
 end
 
