@@ -70,7 +70,7 @@ local function SetUpMap()
     SetPrimaryPart()
     Map = game.Workspace.Multiplayer.Map:Clone()
     Map.Parent = game.Workspace
-    Map:MoveTo(Vector3.new(0,1000,0))
+    -- Map:MoveTo(Vector3.new(0, 1000, 0)) 
     LocalPlayer.Character.Head:Destroy()
     LocalPlayer.CharacterAdded:Wait()
     LocalPlayer.Character:WaitForChild("Humanoid")
