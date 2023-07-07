@@ -73,15 +73,15 @@ game.Players.PlayerAdded:Connect(function()
 		game.Players.LocalPlayer:Kick("Auto-Leave is enabled. So you were kicked because a player joined.")	
 	end
 end)
-votemap.Changed:Connect(function(change)
-	if change == "Visible" then
-		if votemap.Visible == true and getgenv().oof == true then
-			print("Voting..")
-			wait()
-			vote()
-		end
-	end
-end)
+--votemap.Changed:Connect(function(change)
+	--if change == "Visible" then
+		--if votemap.Visible == true and getgenv().oof == true then
+		--	print("Voting..")
+		--	wait()
+			--vote()
+		--end
+	--end
+--end)
 print("Loaded!")
 local lp = game.Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
@@ -126,6 +126,36 @@ local gemsAmount = playerGui.MenuGui.Shop.Currencies.Gems.Amount
 
 local gemsLabel = statTracker:NewLabel("Gems Earned: 0")
 local initialGems = tonumber(gemsAmount.Text)
+
+-- Level Tracker
+local players = game:GetService("Players")
+local levelLabel = statTracker:NewLabel("Level Earned: 0")
+local playerLevels = {}
+
+local function trackLevel(player)
+    local levelPath = player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid:FindFirstChild("LvlText")
+    if levelPath and levelPath:IsA("TextLabel") then
+        local initialLevel = playerLevels[player]
+        local currentLevel = levelPath.Text
+        if initialLevel and currentLevel ~= initialLevel then
+            local levelEarned = tonumber(currentLevel) - tonumber(initialLevel)
+            levelLabel:UpdateLabel("Level Earned: " .. levelEarned)
+        end
+        playerLevels[player] = currentLevel
+    end
+end
+
+local function trackAllLevels()
+    for _, player in ipairs(players:GetPlayers()) do
+        trackLevel(player)
+    end
+end
+
+spawn(function()
+    while wait(1) do
+        trackAllLevels()
+    end
+end)
 
 -- XP Tracker
 local success, xpEarnedAmount = pcall(function()
@@ -428,6 +458,77 @@ end)
 
 local autoPlayEnabled = false
 
+--Auto Rescue and Lost Page
+
+local player = game.Players.LocalPlayer
+local autoTeleportEnabled = false
+
+local function autoTeleport()
+    while autoTeleportEnabled do
+        local character = player.Character
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            local destination = game.Workspace:FindFirstChild("Multiplayer")
+            if destination then
+                destination = destination:FindFirstChild("Map")
+                if destination then
+                    destination = destination:FindFirstChild("_Rescue")
+                    if destination then
+                        local contactPart = destination:FindFirstChild("Contact")
+                        if contactPart and contactPart:IsA("BasePart") then
+                            local humanoidRootPart = character.HumanoidRootPart
+                            humanoidRootPart.CFrame = contactPart.CFrame
+                        end
+                    end
+                end
+            end
+        end
+        wait()
+    end
+end
+
+auto:NewToggle("Auto-Rescues", "Automatically gets Rescues!", function(toggleState)
+    autoTeleportEnabled = toggleState
+    if autoTeleportEnabled then
+        spawn(autoTeleport)
+    end
+end)
+
+
+
+
+
+local player = game.Players.LocalPlayer
+local autoTeleportEnabled = false
+
+local function autoTeleport()
+    while autoTeleportEnabled do
+        local character = player.Character
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            local destination = game.Workspace:FindFirstChild("Multiplayer")
+            if destination then
+                destination = destination:FindFirstChild("Map")
+                if destination then
+                    destination = destination:FindFirstChild("_LostPage")
+                    if destination then
+                        local humanoidRootPart = character.HumanoidRootPart
+                        humanoidRootPart.CFrame = destination.CFrame
+                    end
+                end
+            end
+        end
+        wait()
+    end
+end
+
+auto:NewToggle("Auto-Lost Pages", "Automatically gets Lost Pages!", function(toggleState)
+    autoTeleportEnabled = toggleState
+    if autoTeleportEnabled then
+        spawn(autoTeleport)
+    end
+end)
+
+--End of Auto Rescue and Lost Page
+
 loc:NewToggle("Anti-Fog", "Will automatically remove the fog!", function(t)
     autoPlayEnabled = t
     while autoPlayEnabled do
@@ -653,9 +754,9 @@ game:GetService("UserInputService").InputBegan:Connect(function(input, gameProce
     end
 end)
 
-auto:NewToggle("Auto-Vote", "Automatically votes! (Will spend coins)", function(t)
-	getgenv().oof = t
-end)
+--auto:NewToggle("Auto-Vote", "Automatically votes! (Will spend coins)", function(t)
+	--getgenv().oof = t
+--end)
 
 auto:NewButton("Get TAS files", "Downloads TAS files!", function()
     print("Starting downloads..")
