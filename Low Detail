@@ -60,7 +60,6 @@ local function ModifyObjectAppearance(object)
     if object:IsA("BasePart") then
         object.BrickColor = BrickColor.new(155, 155, 155)
         object.Material = Enum.Material.Plastic
-        object.Texture = "" -- Remove texture by setting it to an empty string
     end
 end
 
@@ -99,7 +98,7 @@ while true do
     game.Lighting.GlobalShadows = false
     game.Lighting.Outlines = false
     game.Lighting.Ambient = Color3.new(0, 0, 0)
-    game.Lighting.Brightness = 0.5 -- Adjust the brightness value as desired
+    game.Lighting.Brightness = 0 -- Adjust the brightness value as desired
     game.Lighting.ColorShift_Bottom = Color3.new(0, 0, 0)
     game.Lighting.ColorShift_Top = Color3.new(0, 0, 0)
 
