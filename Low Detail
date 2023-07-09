@@ -1,63 +1,16 @@
-local GraphicsSettings = {
-    ["ResolutionScale"] = 0.1,
-    ["QualityLevel"] = Enum.QualityLevel.Level01,
-    ["StreamingMinRadius"] = 0,
-    ["ShowLightingEffects"] = false,
-    ["EnableLighting"] = false,
-    ["EnableShadows"] = false,
-    ["EnableDynamicShadows"] = false,
-    ["EnableBloom"] = false,
-    ["EnableSunRays"] = false,
-    ["EnableDepthOfField"] = false,
-    ["EnableColorCorrection"] = false,
-    ["EnableVignette"] = false,
-    ["EnableChromaticAberration"] = false,
-    ["EnableVoxelGrid"] = false,
-    ["EnableSSAO"] = false,
-    ["EnableHeatDistortion"] = false,
-    ["EnableMotionBlur"] = false,
-    ["EnableReflectiveWater"] = false,
-    ["EnablePixelParticles"] = false,
-    ["EnableFog"] = false,
-    ["EnableBlurEffects"] = false,
-    ["EnableSunRays"] = false,
-    ["EnableLightShafts"] = false,
-    ["EnableSky"] = false,
-    ["EnableSkybox"] = false,
-    ["EnableRain"] = false,
-    ["EnableSnow"] = false,
-    ["EnableWaterReflections"] = false,
-    ["EnableWaterFoam"] = false,
-    ["EnableOcean"] = false,
-    ["EnableVignette"] = false,
-    ["EnableVoxelGrid"] = false,
-    ["EnableWeather"] = false,
-    ["EnableSunRays"] = false,
-    ["EnableLensFlare"] = false,
-    ["EnableCharacterLights"] = false,
-    ["EnableFogEffect"] = false,
-    ["EnableProjectiles"] = false,
-    ["EnableBlood"] = false,
-    ["EnableWetness"] = false,
-    ["EnableWetSurface"] = false,
-    ["EnableUnderwaterBubbles"] = false,
-    ["EnableUnderwaterFog"] = false,
-    ["EnableUnderwaterEffects"] = false,
-    ["EnableWaterReflectance"] = false,
-    ["EnableAdornments"] = false,
-    ["EnableVolumeLighting"] = false,
-}
-
-for setting, value in pairs(GraphicsSettings) do
-    pcall(function()
-        game:GetService("StarterGui"):SetCore(setting, value)
-    end)
+local function SetGraphicsSettings()
+    for setting, value in pairs(GraphicsSettings) do
+        pcall(function()
+            game:GetService("StarterGui"):SetCore(setting, value)
+        end)
+    end
 end
 
 local function ModifyObjectAppearance(object)
     if object:IsA("BasePart") then
         object.BrickColor = BrickColor.new(155, 155, 155)
         object.Material = Enum.Material.Plastic
+        object.Texture = "" -- Remove texture by setting it to an empty string
     end
 end
 
@@ -67,26 +20,6 @@ local function TraverseAndModify(object)
         TraverseAndModify(child)
     end
 end
-
-TraverseAndModify(game.Workspace)
-
--- Check for "Map" in workspace and modify it
-local map = game.Workspace:FindFirstChild("Map")
-if map then
-    TraverseAndModify(map)
-end
-
-game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
-
--- Additional optimizations
-game.Lighting.GlobalShadows = false
-game.Lighting.Outlines = false
-game.Lighting.Ambient = Color3.new(0, 0, 0)
-game.Lighting.Brightness = 0.5 -- Adjust the brightness value as desired
-game.Lighting.ColorShift_Bottom = Color3.new(0, 0, 0)
-game.Lighting.ColorShift_Top = Color3.new(0, 0, 0)
-
-game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 
 local function RemovePlayerAccessories(player)
     local character = player.Character
@@ -99,5 +32,31 @@ local function RemovePlayerAccessories(player)
     end
 end
 
--- Remove accessories for the local player
-RemovePlayerAccessories(game.Players.LocalPlayer)
+while true do
+    SetGraphicsSettings()
+
+    TraverseAndModify(game.Workspace)
+
+    -- Check for "Map" in workspace and modify it
+    local map = game.Workspace:FindFirstChild("Map")
+    if map then
+        TraverseAndModify(map)
+    end
+
+    game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
+
+    -- Additional optimizations
+    game.Lighting.GlobalShadows = false
+    game.Lighting.Outlines = false
+    game.Lighting.Ambient = Color3.new(0, 0, 0)
+    game.Lighting.Brightness = 0.5 -- Adjust the brightness value as desired
+    game.Lighting.ColorShift_Bottom = Color3.new(0, 0, 0)
+    game.Lighting.ColorShift_Top = Color3.new(0, 0, 0)
+
+    game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+
+    -- Remove accessories for the local player
+    RemovePlayerAccessories(game.Players.LocalPlayer)
+
+    wait(5) -- Wait for 5 seconds before applying the next iteration
+end
