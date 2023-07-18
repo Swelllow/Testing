@@ -602,7 +602,7 @@ local Spawn = (function() -- new spawn finder by "_tomato." on discord
     
     local connections = {}
     for i,v in ipairs(Map:GetChildren()) do
-        if v.Name == "Part" then
+        if v.Name == "Part" and checkSize(v.Size) == true then
             table.insert(connections, v:GetPropertyChangedSignal("Rotation"):Connect(function()
                 Spawn = v
                 for i,v in ipairs(connections) do
