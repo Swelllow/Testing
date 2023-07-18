@@ -5,7 +5,8 @@ local SkipMirroredMaps = {
     ["Northren Mill"] = true,
     ["Mysterium"] = true,
     ["Decaying Silo"] = true,
-    ["Active Volcanic Mines"] = true
+    ["Active Volcanic Mines"] = true,
+    ["Snowy Stronghold"] = true
 }
 local NewV = Vector3.new
 local NewC = CFrame.new
@@ -35,7 +36,7 @@ else
     if SkipMirroredMaps[mapName] then
         CLMAIN.newAlert('Map cannot be mirrored.')
     else
-        if Map:WaitForChild('Settings'):FindFirstChild("_MirrorMap") then
+        if Map:WaitForChild('Settings'):FindFirstChild("_MirrorMap") then --mirrored functions all fixed by moz
             CLMAIN.newAlert('Map is not mirrored.')
             Mirrored = false
         else
@@ -140,7 +141,7 @@ Loop = RS.Heartbeat:connect(function(DeltaTime)
             RayParts:Destroy()
             Animate.playAnimation = PlayAnim
             CLMAIN.newAlert('TAS Run Finished!', Color3.new(0, 1, 0))
-            CLMAIN.newAlert('TAS Player By Tomato', Color3.new(0, 1, 0))
+            CLMAIN.newAlert('TAS Player By Tomato and Moz', Color3.new(0, 1, 0))
         elseif (os.clock() - TimeStart) >= TAS[i].time then
             OldFrame = i
             local CF = TAS[i].CCFrame
