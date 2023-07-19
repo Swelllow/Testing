@@ -240,10 +240,14 @@ local function SaveRun()
             table.insert(AllPlayerInfo, InfoAddingToAllPlayerInfo)
         end
     end
+    local i = -1
+    repeat
+        i = i + 1
     until not isfile("tas/" .. game.Workspace.Map.Settings.MapName.Value .. tostring(i) .. ".json")
     writefile("tas/" .. game.Workspace.Map.Settings.MapName.Value .. tostring(i) .. ".json", game:GetService("HttpService"):JSONEncode(AllPlayerInfo))
     Alert("Saved", Color3.fromRGB(0, 255, 0), 1)
 end
+
 
 ReplicatedStorage.Remote.StartClientMapTimer.OnClientEvent:Wait()
 SetUpMap()
@@ -283,4 +287,3 @@ UserInputService.InputBegan:Connect(function(Key,Typing)
         end
     end
 end)
-
