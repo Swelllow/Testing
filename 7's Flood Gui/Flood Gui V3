@@ -640,44 +640,36 @@ tas:NewButton("Run-TAS For CM", "For CM only!", function()
 end)
 
 tas:NewButton("Create-TAS", "Create a TAS, Press then enter lift.", function()
-    game.Workspace.DescendantAdded:Connect(function(child)
-        if child.ClassName == "Sound" then
-            child:Destroy()
-        end
-    end)
-
-    local Fix = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Record%20Fix", true))()
-    end
-
-    local ButtonStuff = function()
-        while not game.Workspace:FindFirstChild("Map") do
-            wait()
-        end
-        
-        local Map = game.Workspace.Map
-        for i, v in pairs(Map:GetDescendants()) do
-            if v:IsA("Part") and v.Size == Vector3.new(1, 1,1) then
-                v.Size = v.Size * 1.8
-                v.Color = Color3.fromRGB(255, 140, 0)
-                local selectbox = Instance.new("SelectionBox", v)
-                selectbox.Adornee = v
-                selectbox.Color3 = Color3.fromRGB(255, 140, 0)
-                getgenv().delayy = false
-                v.Touched:Connect(function(part)
-                    if not delayy then
-                        clmain.newAlert("Button Touched!", Color3.fromRGB(255, 140, 0))
-                        delayy = true
-                        wait(1)
-                        delayy = false
-                    end
-                end)
+	game.Workspace.DescendantAdded:Connect(function(child)
+		if child.ClassName == "Sound" then
+	            	child:Destroy()
+	        end
+	end)
+	local Fix = function()
+	        loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Record%20Fix", true))()
+	end)
+        local ButtonStuff = coroutine.wrap(function()
+            for i,v in pairs(game.Workspace:WaitForChild("Map"):GetDescendants()) do
+                if v.ClassName == "Part" and v.Size == Vector3.new(1,1,1) then 
+                    v.Size = v.Size * 1.8
+                    v.Color = Color3.fromRGB(255,140,0)
+                    local selectbox = Instance.new("SelectionBox", v)
+                    selectbox.Adornee = v
+                    selectbox.Color3 = Color3.fromRGB(255,140,0)
+                    getgenv().delayy = false
+                    v.Touched:Connect(function(part)
+                        if delayy == false then
+                            clmain.newAlert("Button Touched!",Color3.fromRGB(255,140,0))
+                            delayy = true
+                            wait(1)
+                            delayy = false
+                        end
+                    end)
+                end
             end
-        end
-    end
-
-    Fix()
-    spawn(ButtonStuff) -- Use spawn() to run the function asynchronously
+        end)
+	Fix()
+	ButtonStuff()
 end)
 
 
