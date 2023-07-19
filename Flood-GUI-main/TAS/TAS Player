@@ -138,7 +138,7 @@ Loop = RS.Heartbeat:Connect(function(DeltaTime)
             if Mirrored == true then
                 RootPart.CFrame = NewC(CCFrame[1], CCFrame[2], -CCFrame[3]) * AngC(-3.1415927410125732, CCFrame[5], -3.1415927410125732) + Offset
                 RootPart.Velocity = NewV(VVelocity[1], VVelocity[2], -VVelocity[3])
-                --workspace.CurrentCamera.CFrame = NewC(-CCameraCFrame[1], -CCameraCFrame[2], -CCameraCFrame[3]) * AngC(3.1415927410125732, CCameraCFrame[5], 3.1415927410125732) + Offset
+                -- workspace.CurrentCamera.CFrame = NewC(-CCameraCFrame[1], -CCameraCFrame[2], -CCameraCFrame[3]) * AngC(3.1415927410125732, CCameraCFrame[5], 3.1415927410125732) + Offset
             else
                 RootPart.CFrame = NewC(CCFrame[1], CCFrame[2], CCFrame[3]) * AngC(CCFrame[4], CCFrame[5], CCFrame[6]) + Offset
                 RootPart.Velocity = NewV(VVelocity[1], VVelocity[2], VVelocity[3])
