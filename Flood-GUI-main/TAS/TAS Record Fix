@@ -3,7 +3,7 @@ local Keybinds = {
     AddSavestate = "One",
     RemoveSavestate = "Two",
     BackSavestate = "Three",
-    CollisionToggler = "Four",
+    CollisionToggler = "C",
     SaveRun = "Five"
 }
 
@@ -212,7 +212,7 @@ local function CollisionToggler()
     if MouseTarget.CanCollide then
         MouseTarget.Transparency = 0
     else
-        MouseTarget.Transparency = 1
+        MouseTarget.Transparency = 0.8
     end
 end
 local function SaveRun()
