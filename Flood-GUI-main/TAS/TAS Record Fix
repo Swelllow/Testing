@@ -234,7 +234,8 @@ local function SaveRun()
             table.insert(AllPlayerInfo, InfoAddingToAllPlayerInfo)
         end
     end
-    writefile(game.Workspace.Map.Settings.MapName.Value..".json", game:GetService("HttpService"):JSONEncode(AllPlayerInfo))
+    until not isfile("tas/" .. game.Workspace.Map.Settings.MapName.Value .. tostring(i) .. ".json")
+    writefile("tas/" .. game.Workspace.Map.Settings.MapName.Value .. tostring(i) .. ".json", game:GetService("HttpService"):JSONEncode(AllPlayerInfo))
     Alert("Saved", Color3.fromRGB(0, 255, 0), 1)
 end
 
