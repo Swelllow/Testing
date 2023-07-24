@@ -1,7 +1,6 @@
 if Legit == nil then
     Legit = false
 end
-
 local SkipMirroredMaps = {
     ["Retro Coast"] = true,
     ["Zemblanity"] = true,
@@ -114,21 +113,38 @@ local function toggleTouch(bool)
     BoundingBox.CanTouch = bool
 end
 
+function isRandomString(str) -- basicly detects if button 99% of the time just checks if all capital
+    for i = 1, #str do
+        local ltr = str:sub(i, i)
+        if ltr:lower() == ltr then
+            return false
+        end     
+    end
+    return true
+end
+
+
+local function badCheck(Thing) --  NOT walljump or NOT AIRTANK or explodingbutton hitbox :check:
+    return not (Thing:FindFirstChild("_Wall") or Thing.Parent.Name ~= "AirTank" or (Thing.Name == "Part" and isRandomString(Thing.Parent.Name)))
+end
 local walljumpfix
 walljumpfix = LP.Character.HumanoidRootPart.Touched:Connect(function(Thing)
-    if not Thing:FindFirstChild("_Wall") then
+    if badCheck(Thing) then
         toggleTouch(true)
-        wait()
+        print("Touched:", Thing:GetFullName())
+    elseif Thing.Name == "RopeStart" then
+        toggleTouch(true)
         firetouchinterest(Thing, BoundingBox, 0)
     end
 end)
 
 local walljumpfix2
 walljumpfix2 = LP.Character.HumanoidRootPart.TouchEnded:Connect(function(Thing)
-    if not Thing:FindFirstChild("_Wall") then
-        firetouchinterest(Thing, BoundingBox, 1)
-        wait()
+    if badCheck(Thing) then
         toggleTouch(false)
+    elseif Thing.Name == "RopeStart" then
+        toggleTouch(false)
+        firetouchinterest(Thing, BoundingBox, 1)
     end
 end)
 
@@ -182,7 +198,7 @@ Loop = RS.Heartbeat:Connect(function(DeltaTime)
             end
             Animate.playAnimation = PlayAnim
             CLMAIN.newAlert('TAS Run Finished!', Color3.new(0, 1, 0))
-            CLMAIN.newAlert('TAS Player By Tomato & Moz', Color3.new(0, 1, 0))
+            CLMAIN.newAlert('TAS Player By Tomato', Color3.new(0, 1, 0))
         elseif (tick() - TimeStart) >= CurrentInfo.time then
             OldFrame = i
             local CCFrame = CurrentInfo.CCFrame
