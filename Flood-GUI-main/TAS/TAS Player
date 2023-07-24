@@ -1,6 +1,7 @@
 if Legit == nil then
     Legit = false
 end
+
 local SkipMirroredMaps = {
     ["Retro Coast"] = true,
     ["Zemblanity"] = true,
@@ -177,6 +178,7 @@ Loop = RS.Heartbeat:Connect(function(DeltaTime)
             walljumpfix2:Disconnect()
             if Legit then
                 RootPart.RootJoint.Enabled = true
+                LP.Character.Humanoid.Health = 0
             end
             Animate.playAnimation = PlayAnim
             CLMAIN.newAlert('TAS Run Finished!', Color3.new(0, 1, 0))
