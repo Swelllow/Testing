@@ -154,7 +154,7 @@ local function activateAnimation(CurrentAnimation)
         if CurrentAnimation[1] == "walk" then
             Animate.setAnimationSpeed(.76) 
         elseif CurrentAnimation[1] == "slide" then
-            task.spawn(doSlide, 0.15)
+            task.spawn(doSlide, 0.10)
         end
     end
 end
