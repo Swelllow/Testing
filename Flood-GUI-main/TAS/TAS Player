@@ -190,8 +190,6 @@ Loop = RS.Heartbeat:Connect(function(DeltaTime)
         elseif i >= #TAS then
             Death:Disconnect()
             Loop:Disconnect()
-            toggleTouch(true)
-            toggleTouch = nil
             walljumpfix:Disconnect()
             walljumpfix2:Disconnect()
             if Legit then
