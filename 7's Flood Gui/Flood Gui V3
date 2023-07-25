@@ -1,6 +1,8 @@
 repeat wait() until game:IsLoaded() or game.Loaded:wait()
 --anticheat bypass all credits to Altlexon
 game:GetService("ReplicatedStorage").Remote.ReqCharVars.OnClientInvoke = function()return{}end
+-- secondary anticheat bypass thing 
+game:GetService("ReplicatedStorage").Remote.FetchPos.OnClientInvoke = function()return wait(9e9)end
 
 -- map list extractor
 getgenv().maps = {}
@@ -18,46 +20,21 @@ if getgenv().wow and debugmode == false then
 else
     getgenv().wow=''
 end
--- TAS file minifier 
--- Starting from this line to ending line code was made by ian
-local HttpService = game:GetService("HttpService")
-local function round(x)
-    local factorOfTen = 10^(3)
-    return math.floor(x * factorOfTen + .5) / factorOfTen
-end
-local function minfile(file)
-    local tasFile = HttpService:JSONDecode(file)
-    local minTasFile = {}
-    for t,data in ipairs(tasFile) do
-        local minData = {}
-        for key,val in pairs(data) do
-            local minVal = nil
-            if type(val) == "table" then
-                minVal = {}
-                for f,x in ipairs(val) do
-                    if type(x) == "number" then table.insert(minVal, round(x))
-                    else table.insert(minVal, x) end    
-                end
-            else
-                minVal = round(val)
-            end
-            minData[key] = minVal
-        end
-        table.insert(minTasFile, minData)
-    end
-    return HttpService:JSONEncode(minTasFile)
-end
--- ending line
+
 local char = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:wait()
 local bb = game:service'VirtualUser'
 game:service'Players'.LocalPlayer.Idled:connect(function()
 	bb:CaptureController()
 	bb:ClickButton2(Vector2.new())
 end)
--- new anticheat bypass all credits to altlexon
-game.ReplicatedStorage.Remote.ReqCharVars.OnClientInvoke = function()
-	return {}
+
+for i,v in ipairs(getnilinstances()) do
+	if v.Name == "CL_AntiExploit" then
+		print('Anti-Cheat Deleted.')
+		v:Destroy()
+	end
 end
+
 getgenv().oof = false
 local votemap = game.Players.LocalPlayer.PlayerGui.GameGui.VoteMap
 local key = -game:GetService("ReplicatedStorage").Remote.ReqPasskey:InvokeServer()
@@ -73,17 +50,33 @@ game.Players.PlayerAdded:Connect(function()
 		game.Players.LocalPlayer:Kick("Auto-Leave is enabled. So you were kicked because a player joined.")	
 	end
 end)
---votemap.Changed:Connect(function(change)
-	--if change == "Visible" then
-		--if votemap.Visible == true and getgenv().oof == true then
-		--	print("Voting..")
-		--	wait()
-			--vote()
-		--end
-	--end
---end)
+votemap.Changed:Connect(function(change)
+	if change == "Visible" then
+		if votemap.Visible == true and getgenv().oof == true then
+			print("Voting..")
+			wait()
+			vote()
+		end
+	end
+end)
+
 print("Loaded!")
 local lp = game.Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+local TS = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
+local function Time(targetpos)
+	local tme = (targetpos - lp.Character.HumanoidRootPart.Position).Magnitude / math.random(16, 20)
+	return tme
+end
+local function tween(pos)
+	local toof = TS:Create(lp.Character.HumanoidRootPart, TweenInfo.new(Time(pos), Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
+		CFrame = CFrame.new(pos)
+	})
+	toof:Play()
+	return toof
+end
+
 local UIS = game:GetService("UserInputService")
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 local colors = {
@@ -112,7 +105,7 @@ local credits = c:NewSection("Credits")
 
 getgenv().wow = true
 
--- Coins Tracker
+-- Coins Tracker All credits to Moz
 local players = game:GetService("Players")
 local localPlayer = players.LocalPlayer
 local playerGui = localPlayer.PlayerGui
@@ -121,13 +114,13 @@ local coinsAmount = playerGui.MenuGui.Shop.Currencies.Coins.Amount
 local coinsLabel = statTracker:NewLabel("Coins Earned: 0")
 local initialCoins = tonumber(coinsAmount.Text)
 
--- Gems Tracker
+-- Gems Tracker All credits to Moz
 local gemsAmount = playerGui.MenuGui.Shop.Currencies.Gems.Amount
 
 local gemsLabel = statTracker:NewLabel("Gems Earned: 0")
 local initialGems = tonumber(gemsAmount.Text)
 
--- Level Tracker
+-- Level Tracker (Broken) All credits to Moz
 local players = game:GetService("Players")
 local levelLabel = statTracker:NewLabel("Level Earned: 0")
 local playerLevels = {}
@@ -157,7 +150,7 @@ spawn(function()
     end
 end)
 
--- XP Tracker
+-- XP Tracker All credits to Moz
 local success, xpEarnedAmount = pcall(function()
     return playerGui.MenuGui.Goals.Window.Content.Pages.Stats.xpEarned.Amount
 end)
@@ -319,26 +312,21 @@ blatant:NewKeybind("Infinite Air", "Infinite Air/God Mode", Enum.KeyCode.R, func
 	end
 end)
 
-local lp = game:GetService("Players").LocalPlayer
+--local lp = game:GetService("Players").LocalPlayer --If breaks gui reenable
 local noclipEnabled = false
 
-game:GetService("RunService").Stepped:Connect(function()
-    if noclipEnabled and lp.Character then
-        for _, part in pairs(lp.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = false
-            end
-        end
-    end
-end)
-
+getgenv().noclip = false
 blatant:NewKeybind("Noclip", "Walk through some walls!", Enum.KeyCode.G, function()
-    noclipEnabled = not noclipEnabled
-    if noclipEnabled then
-        clmain.newAlert("Noclip Enabled!", Color3.fromRGB(0, 255, 0))
-    else
-        clmain.newAlert("Noclip Disabled!", Color3.fromRGB(255, 0, 0))
-    end
+	lp.Character:WaitForChild("Torso").CanCollide = getgenv().noclip
+	lp.Character:WaitForChild("HumanoidRootPart").CanCollide = getgenv().noclip
+	lp.Character:WaitForChild("BoundingBox").CanCollide = getgenv().noclip
+	if getgenv().noclip ~= false then
+		clmain.newAlert("Noclip Disabled!", Color3.fromRGB(255, 0, 0))
+		getgenv().noclip = false
+	else
+		clmain.newAlert("Noclip Enabled!", Color3.fromRGB(0, 255, 0))
+		getgenv().noclip = true
+	end
 end)
 
 blatant:NewButton("Lag Server", "Equip buddy then press", function()
@@ -574,69 +562,60 @@ end)
 	--getgenv().oof = t
 --end)
 
-auto:NewButton("Get TAS files", "Downloads TAS files!", function()
-    print("Starting downloads..")
-    for i, v in pairs(maps) do
-        print("-------------------------------------------------")
-        local map = string.gsub(v, " ", "%%20")
-        local su = false -- isfile(v..".json")
-        if su == true then
-            clmain.newAlert(v.." TAS file already exists!",Color3.fromRGB(50,100,255))
-        else
-            local s, r = pcall(function()
+auto:NewButton("Download TAS files", "Downloads Required TAS files!", function()
+	for i, v in pairs(maps) do
+		local map = HttpService:UrlEncode(v)
+		local su = isfile(v..".json")
+		if su == true then
+			clmain.newAlert(v.." TAS file already exists!",Color3.fromRGB(50,100,255))
+		else
+			local s, r = pcall(function()
                 local tas = game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS%20FILES/"..map..".json")
-                writefile(v..".json", minfile(tas),true)
-            end)
-            if s then
-                clmain.newAlert("Downloaded "..v.." TAS file succesfully!",Color3.fromRGB(0,255,0))
-            else
-                clmain.newAlert("Failed to download "..v.." TAS file. :(",Color3.fromRGB(255,0,0))
-            end
-        end
-        task.wait()
-    end
-    clmain.newAlert("Finished Downloading TAS files")
+				if not string.find(tas, "CFrame") then error('file not exist') end
+				writefile(v..".json", tas,true) -- minfile(tas) removed
+			end)
+			if s then
+				clmain.newAlert("Downloaded "..v.." TAS file succesfully!",Color3.fromRGB(0,255,0))
+			else
+				clmain.newAlert("Failed to download "..v.." TAS file. :(",Color3.fromRGB(255,0,0))
+			end
+		end
+		wait()
+	end
+	clmain.newAlert("Finished Downloading TAS files")
 end)
 
 tas:NewButton("Create-TAS for CM", "Create a TAS for CM, Press then enter lift.", function()
-    game.Workspace.DescendantAdded:Connect(function(child)
-        if child.ClassName == "Sound" then
-            child:Destroy()
-        end
-    end)
-
-    local Fix = function()
+    local Fix = coroutine.wrap(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Recorder%20for%20CM", true))()
-    end
-
-    local ButtonStuff = function()
-        while not game.Workspace:FindFirstChild("Map") do
-            wait()
-        end
-        
-        local Map = game.Workspace.Map
-        for i, v in pairs(Map:GetDescendants()) do
-            if v:IsA("Part") and v.Size == Vector3.new(3, 1, 3) then
-                v.Size = v.Size * 1.8
-                v.Color = Color3.fromRGB(255, 140, 0)
-                local selectbox = Instance.new("SelectionBox", v)
-                selectbox.Adornee = v
-                selectbox.Color3 = Color3.fromRGB(255, 140, 0)
-                getgenv().delayy = false
-                v.Touched:Connect(function(part)
-                    if not delayy then
-                        clmain.newAlert("Button Touched!", Color3.fromRGB(255, 140, 0))
-                        delayy = true
-                        wait(1)
-                        delayy = false
-                    end
-                end)
+    end)
+        local ButtonStuff = coroutine.wrap(function()
+            local Map = workspace:WaitForChild("Map") -- voiz tas map clone 
+            task.wait(.2)
+            for _, v in ipairs(Map:GetDescendants()) do
+                if v.ClassName == "TouchTransmitter" then 
+                    local Hitbox = v.Parent
+                    Hitbox.Size = Hitbox.Size * 1.8
+                    Hitbox.Color = Color3.fromRGB(255,140,0)
+                    local selectbox = Instance.new("SelectionBox", Hitbox)
+                    selectbox.Adornee = Hitbox
+                    selectbox.Color3 = Color3.fromRGB(255,140,0)
+                    getgenv().delayy = false
+                    Hitbox.Touched:Connect(function(part)
+                        if delayy == false then
+                            clmain.newAlert("Button Touched!",Color3.fromRGB(255,140,0))
+                            delayy = true
+                            wait(1)
+                            delayy = false
+                        end
+                    end)
+                    print("stupid button ?", Hitbox.Parent)
+                end
             end
-        end
-    end
-
-    Fix()
-    spawn(ButtonStuff) -- Use spawn() to run the function asynchronously
+            print("Buttons script loaded for map: "..Map.Settings.MapName.Value)
+        end)
+	Fix()
+	ButtonStuff()
 end)
 
 tas:NewButton("Run-TAS For CM", "For CM only!", function()
@@ -645,25 +624,69 @@ tas:NewButton("Run-TAS For CM", "For CM only!", function()
 end)
 
 tas:NewButton("Create-TAS", "Create a TAS.", function()
-	game.Workspace.DescendantAdded:Connect(function(child)
-		if child.ClassName == "Sound" then
-	            	child:Destroy()
-	        end
-	end)
 	local Fix = coroutine.wrap(function()
-	        loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Record%20Fix", true))()
-	end)
+	    loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Record%20Fix", true))()
+    end)
+        local ButtonStuff = coroutine.wrap(function()
+            local Map = workspace:WaitForChild("Map") -- voiz tas map clone 
+            task.wait(.2)
+            for _, v in ipairs(Map:GetDescendants()) do
+                if v.ClassName == "TouchTransmitter" then 
+                    local Hitbox = v.Parent
+                    Hitbox.Size = Hitbox.Size * 1.8
+                    Hitbox.Color = Color3.fromRGB(255,140,0)
+                    local selectbox = Instance.new("SelectionBox", Hitbox)
+                    selectbox.Adornee = Hitbox
+                    selectbox.Color3 = Color3.fromRGB(255,140,0)
+                    getgenv().delayy = false
+                    Hitbox.Touched:Connect(function(part)
+                        if delayy == false then
+                            clmain.newAlert("Button Touched!",Color3.fromRGB(255,140,0))
+                            delayy = true
+                            wait(1)
+                            delayy = false
+                        end
+                    end)
+                    print("stupid button ?", Hitbox.Parent)
+                end
+            end
+            print("Buttons script loaded for map: "..Map.Settings.MapName.Value)
+        end)
+	Fix()
+	ButtonStuff()
 end)
 
 tas:NewButton("Edit-TAS", "Edit a TAS file.", function()
-	game.Workspace.DescendantAdded:Connect(function(child)
-		if child.ClassName == "Sound" then
-	            	child:Destroy()
-	        end
-	end)
 	local Fix = coroutine.wrap(function()
-	        loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/Tas%20Editor", true))()
-	end)
+	    loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/Tas%20Editor", true))()
+    end)
+        local ButtonStuff = coroutine.wrap(function()
+            local Map = workspace:WaitForChild("Map") -- voiz tas map clone 
+            task.wait(.2)
+            for _, v in ipairs(Map:GetDescendants()) do
+                if v.ClassName == "TouchTransmitter" then 
+                    local Hitbox = v.Parent
+                    Hitbox.Size = Hitbox.Size * 1.8
+                    Hitbox.Color = Color3.fromRGB(255,140,0)
+                    local selectbox = Instance.new("SelectionBox", Hitbox)
+                    selectbox.Adornee = Hitbox
+                    selectbox.Color3 = Color3.fromRGB(255,140,0)
+                    getgenv().delayy = false
+                    Hitbox.Touched:Connect(function(part)
+                        if delayy == false then
+                            clmain.newAlert("Button Touched!",Color3.fromRGB(255,140,0))
+                            delayy = true
+                            wait(1)
+                            delayy = false
+                        end
+                    end)
+                    print("stupid button ?", Hitbox.Parent)
+                end
+            end
+            print("Buttons script loaded for map: "..Map.Settings.MapName.Value)
+        end)
+	Fix()
+	ButtonStuff()
 end)
 
 local oldindex
