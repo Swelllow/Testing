@@ -29,6 +29,43 @@ local TimeStart
 local TimeText
 local SaveStatesCount
 local CapLockPause
+local Synced = true
+local RootPart, RootClone
+
+
+local function desync()
+    if Synced == true then
+        local Char = LocalPlayer.Character
+        Synced = false
+        LocalPlayer.Character.Animate.Enabled = false
+        Char.Parent = game.ReplicatedStorage
+        RootPart = Char.HumanoidRootPart
+        RootClone = RootPart:Clone()
+
+        RootPart.Transparency = 0
+        RootPart.RootJoint.Enabled = false
+        RootPart.Name = "NotRootPart"
+
+
+        RootClone.Transparency = 1
+        RootClone.Parent = Char
+        Char.PrimaryPart = RootClone
+        Char.Parent = workspace
+        LocalPlayer.Character.Animate.Enabled = true
+    end
+end
+
+local function sync()
+    if Synced == false then
+        local Char = LocalPlayer.Character
+        Synced = true
+        Char.Parent = game.ReplicatedStorage
+        RootClone:Destroy()
+        RootPart.Name = "HumanoidRootPart"
+        Char.PrimaryPart = RootPart
+        RootPart.RootJoint.Enabled = true
+    end
+end
 
 local function getCurrentCFrame()
     local RealCframe
@@ -91,6 +128,7 @@ local function SetPrimaryPart() -- new spawn finder by "_tomato." on discord
     repeat task.wait() until Spawn
     Map.PrimaryPart = Spawn
 end
+
 local function SetUpGui()
     local HUD = LocalPlayer.PlayerGui.GameGui.HUD
     local GameStats = HUD.Main.GameStats
@@ -219,6 +257,7 @@ local function hookAnimation()
     end
     print("Updated animation hook values")
 end
+
 local function SetUpMap()
     local Map
     local CurrentInfo
@@ -301,6 +340,7 @@ local function SetUpMap()
     end
     print("Buttons script loaded for map: "..Map.Settings.MapName.Value)
 end
+
 local function SetTimeGui()
     local TimePlayed = tick() - TimeStart - TimePaused
     local m = math.floor(TimePlayed / 60)
@@ -396,6 +436,7 @@ local function SaveRun()
             table.insert(AllPlayerInfo, InfoAddingToAllPlayerInfo)
         end
     end
+
     -- TAS file minifier 
     -- Starting from this line to ending line code was made by ian
     local function round(x)
