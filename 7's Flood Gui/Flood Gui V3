@@ -406,49 +406,10 @@ local player = game.Players.LocalPlayer
 local character = player.Character
 local camera = workspace.CurrentCamera
 
-getgenv().camera = false
-
-task.spawn(function()
-    while task.wait() do
-        if getgenv().camera then
-            local newLookVector = (targetPosition - camera.CFrame.p).Unit
-            camera.CFrame = CFrame.new(camera.CFrame.p, camera.CFrame.p + newLookVector)
-        end
-    end
-end)
-
-auto:NewToggle("Camera", "Constantly looks at elevator!", function()
-    getgenv().camera = not getgenv().camera
-end)
-
-local autoWalkEnabled = false
-
-local function autoWalk()
-    while autoWalkEnabled do
-        local character = player.Character
-        if character and character:FindFirstChild("Humanoid") then
-            local direction = camera.CFrame.lookVector
-            local targetPos = character.HumanoidRootPart.Position + direction * 2
-            character.Humanoid:MoveTo(targetPos)
-        end
-        wait()
-    end
-end
-
-auto:NewToggle("Auto-Walk", "Will automatically walk forward for you!", function()
-    autoWalkEnabled = not autoWalkEnabled
-    if autoWalkEnabled then
-        spawn(autoWalk)
-    end
-end)
-
-player.CharacterAdded:Connect(function(character)
-    autoWalk()
-end)
-
 getgenv().play = false
 getgenv().infjump = false
 getgenv().oof = false
+
 
 local vuEnabled = false
 
@@ -462,6 +423,18 @@ auto:NewToggle("Anti-Afk", "Prevents AFK kick", function(t) --Made by Moz
         end)
     end
 end)
+
+local toggleIsActive = false
+
+auto:NewToggle("Auto Enter Elevator", "Will automatically enter the elevator!", function(isEnabled)
+    toggleIsActive = isEnabled
+
+    while toggleIsActive do
+        game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("AddedWaiting"):FireServer()
+        wait(1)  -- Adjust the wait time between each remote call as needed
+    end
+end)
+
 
 local autoPlayEnabled = false
 
@@ -478,44 +451,20 @@ local function autoTeleport()
             if destination then
                 destination = destination:FindFirstChild("Map")
                 if destination then
-                    destination = destination:FindFirstChild("_Rescue")
-                    if destination then
-                        local contactPart = destination:FindFirstChild("Contact")
+                    local rescueDestination = destination:FindFirstChild("_Rescue")
+                    local lostPageDestination = destination:FindFirstChild("_LostPage")
+
+                    if rescueDestination then
+                        local contactPart = rescueDestination:FindFirstChild("Contact")
                         if contactPart and contactPart:IsA("BasePart") then
                             local humanoidRootPart = character.HumanoidRootPart
                             humanoidRootPart.CFrame = contactPart.CFrame
                         end
                     end
-                end
-            end
-        end
-        wait()
-    end
-end
 
-auto:NewToggle("Auto-Rescues", "Automatically gets Rescues!", function(toggleState)
-    autoTeleportEnabled = toggleState
-    if autoTeleportEnabled then
-        spawn(autoTeleport)
-    end
-end)
-
-
-local player = game.Players.LocalPlayer
-local autoTeleportEnabled = false
-
-local function autoTeleport()
-    while autoTeleportEnabled do
-        local character = player.Character
-        if character and character:FindFirstChild("HumanoidRootPart") then
-            local destination = game.Workspace:FindFirstChild("Multiplayer")
-            if destination then
-                destination = destination:FindFirstChild("Map")
-                if destination then
-                    destination = destination:FindFirstChild("_LostPage")
-                    if destination then
+                    if lostPageDestination then
                         local humanoidRootPart = character.HumanoidRootPart
-                        humanoidRootPart.CFrame = destination.CFrame
+                        humanoidRootPart.CFrame = lostPageDestination.CFrame
                     end
                 end
             end
@@ -524,9 +473,9 @@ local function autoTeleport()
     end
 end
 
-auto:NewToggle("Auto-Lost Pages", "Automatically gets Lost Pages!", function(toggleState)
+auto:NewToggle("Auto-Rescue and Lost Pages", "Automatically get Rescues and Lost Pages!", function(toggleState)
     autoTeleportEnabled = toggleState
-    if autoTeleportEnabled then
+    if toggleState then
         spawn(autoTeleport)
     end
 end)
