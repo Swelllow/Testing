@@ -29,6 +29,7 @@ local TimeStart
 local TimeText
 local SaveStatesCount
 local CapLockPause
+local MapName
 local Synced = true
 local RootPart, RootClone
 
@@ -264,9 +265,12 @@ local function SetUpMap()
     function game.ReplicatedStorage.Remote.ReqCharVars.OnClientInvoke() return {} end
     function game.ReplicatedStorage.Remote.FetchPos.OnClientInvoke() return CFrame.new() end
     SetPrimaryPart()
+    MapName = game.Workspace.Multiplayer.Map.Settings:GetAttribute("MapName")
+    print(MapName)
     Map = game.Workspace.Multiplayer.Map:Clone()
     Map.Parent = game.Workspace
     --Map:MoveTo(Vector3.new(0,1000,0))
+
     SpawnPos = Map.PrimaryPart.Position 
     Xoff, Yoff, Zoff = SpawnPos.X, SpawnPos.Y, SpawnPos.Z
     Offset = CFrame.new(Xoff, Yoff, Zoff)
@@ -307,10 +311,10 @@ local function SetUpMap()
         if v.ClassName == "ObjectValue" then
             local Interactive = v.Parent
             if not Interactive.ClassName == "Model" then
-                xpcall(HandleThing, print, Interactive)
+                xpcall(HandleThing, function()end, Interactive)
             elseif Interactive.ClassName == "Model" then
                 for _, Interactive in ipairs(Interactive:GetDescendants()) do
-                    xpcall(HandleThing, print, Interactive)
+                    xpcall(HandleThing, function()end, Interactive)
                 end
             end
         end
