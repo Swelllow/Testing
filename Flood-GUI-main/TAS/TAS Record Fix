@@ -342,7 +342,7 @@ local function SetUpMap()
             end
         end
     end
-    print("Buttons script loaded for map: "..Map.Settings.MapName.Value)
+    print("Buttons script loaded for map")
 end
 
 local function SetTimeGui()
