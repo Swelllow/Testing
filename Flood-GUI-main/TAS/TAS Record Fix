@@ -470,8 +470,9 @@ local function SaveRun()
         return minTasFile
     end
     -- ending line
+    local mapName = workspace.Multiplayer.Map.Settings:GetAttribute("MapName")
     local AllPlayerInfo = minfile(AllPlayerInfo)
-    writefile("TAS/"..Multi:WaitForChild('Map'):WaitForChild('Settings'):GetAttribute("MapName")..".json", game:GetService("HttpService"):JSONEncode(AllPlayerInfo))
+    writefile("TAS/"..mapName..".json", game:GetService("HttpService"):JSONEncode(AllPlayerInfo))
     Alert("Saved", Color3.fromRGB(0, 255, 0), 1)
 end
 
