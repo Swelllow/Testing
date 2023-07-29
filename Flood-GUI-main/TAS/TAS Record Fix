@@ -471,9 +471,10 @@ local function SaveRun()
     end
     -- ending line
     local AllPlayerInfo = minfile(AllPlayerInfo)
-    writefile("TAS/"..game.Workspace.Map.Settings.MapName.Value..".json", game:GetService("HttpService"):JSONEncode(AllPlayerInfo))
+    writefile("TAS/"..Multi:WaitForChild('Map'):WaitForChild('Settings'):GetAttribute("MapName")..".json", game:GetService("HttpService"):JSONEncode(AllPlayerInfo))
     Alert("Saved", Color3.fromRGB(0, 255, 0), 1)
 end
+
 
 ReplicatedStorage.Remote.StartClientMapTimer.OnClientEvent:Wait()
 task.wait(1)
