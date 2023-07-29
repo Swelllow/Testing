@@ -431,7 +431,7 @@ auto:NewToggle("Auto Enter Elevator", "Will automatically enter the elevator!", 
 
     while toggleIsActive do
         game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("AddedWaiting"):FireServer()
-        wait(1)  -- Adjust the wait time between each remote call as needed
+        wait(3)  -- Adjust the wait time between each remote call as needed
     end
 end)
 
