@@ -505,7 +505,7 @@ loc:NewToggle("Anti-Fog", "Will automatically remove the fog!", function(t)
     end
 end)
 
-loc:NewToggle("Low-Detail", "Extreme low-detail for farming (Permanent).", function()
+loc:NewToggle("Ultra Low-Detail", "Extreme low-detail for farming (Permanent).", function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Low%20Detail"))()
 end)
 
