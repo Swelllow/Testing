@@ -6,7 +6,6 @@ local NewV = Vector3.new
 local NewC = CFrame.new
 local AngC = CFrame.fromEulerAnglesXYZ
 local LP = game.Players.LocalPlayer
-
 local function toggleSlide(newValue)
     if newValue == true then
         LP.Character.HumanoidRootPart.Size = Vector3.new(2, 1, 1)
@@ -25,21 +24,34 @@ local function doSlide(delay)
     task.wait(delay)
     toggleSlide(false)
 end
-
 local Alert = getsenv(LP.PlayerScripts.CL_MAIN_GameScript).newAlert
 local Multi = workspace.Multiplayer
 local RS = game:GetService('RunService')
 
 -- IMPORTANT
 local CLMAIN = getsenv(LP.PlayerScripts.CL_MAIN_GameScript)
-CLMAIN.newAlert("TAS Player Started.")
-
+local oldalert
+oldalert = hookfunction(CLMAIN.newAlert, function(...)
+    warn("Alert function fired with args:", ...)
+    return oldalert(...)
+end)
+if not getrenv().alreadystarted then
+    CLMAIN.newAlert("TAS Player Started.", Color3.fromRGB(255, 149, 5))
+    getrenv().alreadystarted = true
+else
+    CLMAIN.newAlert("TAS Player ready for next map.", Color3.new(0,1,.5))
+end
 local Animate = getsenv(LP.Character.Animate)
-local mapName = Multi:WaitForChild('NewMap'):WaitForChild('Settings'):GetAttribute("MapName")
+local Map = Multi:WaitForChild('NewMap')
+local mapName = Map:WaitForChild('Settings'):GetAttribute("MapName")
 local TAS = game:GetService("HttpService"):JSONDecode(readfile(mapName .. ".json"))
+if not TAS then
+    CLMAIN.newAlert("TAS file for "..mapName.." is not in workspace folder!", Color3.new(1,0,0))
+    LP.Character.Humanoid.Health = 0
+    LP.CharacterAdded:wait()
+else
 CLMAIN.newAlert("TAS Loaded!")
-
-local Map = Multi:WaitForChild("Map")
+repeat task.wait() until Map.Name == "Map"
 local Spawn = Map:WaitForChild('Spawn')
 
 local function SetPrimaryPart()
@@ -60,11 +72,9 @@ local function SetPrimaryPart()
     Map.PrimaryPart = Part
 end
 
-game:GetService("ReplicatedStorage").Remote.StartClientMapTimer.OnClientEvent:Wait()
-task.wait(.1)
+game:GetService("ReplicatedStorage").Remote.StartClientMapTimer.OnClientEvent:Wait(0.1)
 local TimeStart = tick()
-CLMAIN.newAlert('TAS Running..')
-
+CLMAIN.newAlert('TAS Running..', Color3.fromRGB(255, 149, 5))
 PlayAnim = Animate.playAnimation
 Animate.playAnimation = function() end
 
@@ -77,6 +87,11 @@ for _, v in next, Map:GetDescendants() do
     end
 end
 
+--[[
+local ToggleSwim = function(val)
+    LP.Character.Animate.ToggleSwim:Fire(val)
+end
+]]
 local BoundingBox = LP.Character.BoundingBox
 BoundingBox.CanTouch = false
 
@@ -84,7 +99,7 @@ local function toggleTouch(bool)
     BoundingBox.CanTouch = bool
 end
 
-function isRandomString(str)
+function isRandomString(str) -- basicly detects if button 99% of the time just checks if all capital
     for i = 1, #str do
         local ltr = str:sub(i, i)
         if ltr:lower() == ltr then
@@ -94,10 +109,10 @@ function isRandomString(str)
     return true
 end
 
-local function badCheck(Thing)
+
+local function badCheck(Thing) --  NOT walljump or NOT AIRTANK or explodingbutton hitbox :check:
     return not (Thing:FindFirstChild("_Wall") or Thing.Parent.Name ~= "AirTank" or (Thing.Name == "Part" and isRandomString(Thing.Parent.Name)))
 end
-
 local walljumpfix
 walljumpfix = LP.Character.HumanoidRootPart.Touched:Connect(function(Thing)
     if badCheck(Thing) then
@@ -145,6 +160,9 @@ Death = LP.Character.Humanoid.Changed:Connect(function(Change)
 end)
 
 local RootPart = LP.Character.HumanoidRootPart
+if Legit then
+    RootPart.RootJoint.Enabled = false
+end
 Loop = RS.Heartbeat:Connect(function(DeltaTime)
     local NewFrame = #TAS
     local Divider = OldFrame + 60
@@ -164,7 +182,7 @@ Loop = RS.Heartbeat:Connect(function(DeltaTime)
             walljumpfix2:Disconnect()
             Animate.playAnimation = PlayAnim
             CLMAIN.newAlert('TAS Run Finished!', Color3.new(0, 1, 0))
-            CLMAIN.newAlert('TAS Player By Tomato', Color3.new(0, 1, 0))
+            CLMAIN.newAlert('TAS Player By Tomato & Moz', Color3.new(0, 1, 0))
         elseif (tick() - TimeStart) >= CurrentInfo.time then
             OldFrame = i
             local CCFrame = CurrentInfo.CCFrame
@@ -178,3 +196,4 @@ Loop = RS.Heartbeat:Connect(function(DeltaTime)
         end
     end
 end)
+end
