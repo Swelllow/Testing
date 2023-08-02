@@ -139,142 +139,91 @@ local credits = c:NewSection("Credits")
 
 
 -- stat tracker by Moz
-getgenv().wow = true
+local coinsLabel = statTracker:NewLabel("Coins Earned: 0")
+local gemsLabel = statTracker:NewLabel("Gems Earned: 0")
+local levelsLabel = statTracker:NewLabel("Levels Earned: 0")
+local xpLabel = statTracker:NewLabel("XP Earned: 0")
+local timerLabel = statTracker:NewLabel("Timer: 00:00:00")
 
-local players = game:GetService("Players")
-local localPlayer = players.LocalPlayer
-local playerGui = localPlayer.PlayerGui
-
-local players = game:GetService("Players")
-local localPlayer = players.LocalPlayer
-local playerGui = localPlayer.PlayerGui
-
-if playerGui.MenuGui then
-    local coinsAmount = playerGui.MenuGui.Shop.Currencies.Coins.Amount
-
-    local coinsLabel = statTracker:NewLabel("Coins Earned: 0")
-    local initialCoins = tonumber(coinsAmount.Text)
-
-    local gemsAmount = playerGui.MenuGui.Shop.Currencies.Gems.Amount
-
-    local gemsLabel = statTracker:NewLabel("Gems Earned: 0")
-    local initialGems = tonumber(gemsAmount.Text)
-
-    local levelLabel = statTracker:NewLabel("Levels Earned: 0") 
-    local playerLevels = {}
-    local totalLevelEarned = 0 
-
-    local function trackLevel(player)
-        local levelPath = player:WaitForChild("PlayerGui"):WaitForChild("GameGui"):WaitForChild("HUD"):WaitForChild("Main"):WaitForChild("GameStats"):WaitForChild("Stats"):WaitForChild("XPStats"):WaitForChild("Icon"):WaitForChild("Info")
-        
-        local initialLevel = playerLevels[player]
-        local currentLevel = levelPath.Text
-
-        if initialLevel then
-            local levelDifference = tonumber(currentLevel) - tonumber(initialLevel)
-            if levelDifference > 0 then
-                totalLevelEarned = totalLevelEarned + levelDifference
-                levelLabel:UpdateLabel("Levels Earned: " .. totalLevelEarned) 
-            end
-        end
-        
-        playerLevels[player] = currentLevel
-    end
-
-    local function trackAllLevels()
-        for _, player in ipairs(players:GetPlayers()) do
-            trackLevel(player)
-        end
-    end
-
-    spawn(function()
-        while wait(1) do
-            trackAllLevels()
-        end
-    end)
-
+local playerLevels = {}
+local totalLevelEarned = 0
+local initialCoins = tonumber(playerGui.MenuGui.Shop.Currencies.Coins.Amount.Text)
+local initialGems = tonumber(playerGui.MenuGui.Shop.Currencies.Gems.Amount.Text)
     local xpEarnedAmount
     local success, xpAmount = pcall(function()
         xpEarnedAmount = playerGui.MenuGui.Goals and playerGui.MenuGui.Goals.Window.Content.Pages.Stats.xpEarned.Amount
     end)
+local initialXP = tonumber(xpEarnedAmount and xpEarnedAmount.Text or 0)
+local previousXP = initialXP
 
-    if success and xpEarnedAmount then
-        local xpLabel = statTracker:NewLabel("XP Earned: 0")
-        local initialXP = tonumber(xpEarnedAmount.Text)
-        local previousXP = initialXP
+local function trackLevels(player)
+    local levelPath = player:WaitForChild("PlayerGui"):WaitForChild("GameGui"):WaitForChild("HUD"):WaitForChild("Main"):WaitForChild("GameStats"):WaitForChild("Stats"):WaitForChild("XPStats"):WaitForChild("Icon"):WaitForChild("Info")
+    
+    local initialLevel = playerLevels[player]
+    local currentLevel = levelPath.Text
 
-        local coinsEvent = Instance.new("BindableEvent")
-        local gemsEvent = Instance.new("BindableEvent")
-        local xpEvent = Instance.new("BindableEvent")
-
-        coinsEvent.Event:Connect(function(coins)
-            coinsLabel:UpdateLabel("Coins Earned: " .. coins)
-        end)
-
-        gemsEvent.Event:Connect(function(gems)
-            gemsLabel:UpdateLabel("Gems Earned: " .. gems)
-        end)
-
-        xpEvent.Event:Connect(function(xp)
-            xpLabel:UpdateLabel("XP Earned: " .. xp)
-        end)
-
-        local function trackCoins()
-            local currentCoins = tonumber(coinsAmount.Text)
-            local coinsEarned = currentCoins - initialCoins
-            if coinsEarned > 0 then
-                coinsEvent:Fire(coinsEarned)
-            end
+    if initialLevel then
+        local levelDifference = tonumber(currentLevel) - tonumber(initialLevel)
+        if levelDifference > 0 then
+            totalLevelEarned = totalLevelEarned + levelDifference
+            levelsLabel:UpdateLabel("Levels Earned: " .. totalLevelEarned) 
         end
-
-        local function trackGems()
-            local currentGems = tonumber(gemsAmount.Text)
-            local gemsEarned = currentGems - initialGems
-            if gemsEarned > 0 then
-                gemsEvent:Fire(gemsEarned)
-            end
-        end
-
-        local function trackXP()
-            if success and xpEarnedAmount then
-                local currentXP = tonumber(xpEarnedAmount.Text)
-                local xpEarned = currentXP - previousXP
-                if xpEarned > 0 then
-                    xpEvent:Fire(xpEarned)
-                end
-                previousXP = currentXP
-            end
-        end
-
-        spawn(function()
-            while wait(1) do
-                trackCoins()
-                trackGems()
-                trackXP()
-            end
-        end)
-
-        local startTime = os.time()
-
-        local timerLabel = statTracker:NewLabel("Timer: 00:00:00")
-
-        spawn(function()
-            while true do
-                local currentTime = os.time() - startTime
-                local hours = math.floor(currentTime / 3600)
-                local minutes = math.floor((currentTime % 3600) / 60)
-                local seconds = currentTime % 60
-                local timeString = string.format("%02d:%02d:%02d", hours, minutes, seconds)
-                timerLabel:UpdateLabel("Timer: " .. timeString)
-                wait(1)
-            end
-        end)
-    else
-        print("Failed to get xpEarnedAmount or it's not a valid member")
     end
-else
-    print("MenuGui doesn't exist, skipping...")
+    
+    playerLevels[player] = currentLevel
 end
+
+local function trackCoins()
+    local currentCoins = tonumber(playerGui.MenuGui.Shop.Currencies.Coins.Amount.Text)
+    local coinsEarned = currentCoins - initialCoins
+    coinsLabel:UpdateLabel("Coins Earned: " .. coinsEarned)
+end
+
+local function trackGems()
+    local currentGems = tonumber(playerGui.MenuGui.Shop.Currencies.Gems.Amount.Text)
+    local gemsEarned = currentGems - initialGems
+    gemsLabel:UpdateLabel("Gems Earned: " .. gemsEarned)
+end
+
+local function trackXP()
+    local xpEarnedAmount = playerGui.MenuGui.Goals and playerGui.MenuGui.Goals.Window.Content.Pages.Stats.xpEarned.Amount
+    
+    if xpEarnedAmount then
+        local currentXP = tonumber(xpEarnedAmount.Text)
+        local xpEarned = currentXP - previousXP
+        if xpEarned > 0 then
+            xpLabel:UpdateLabel("XP Earned: " .. xpEarned)
+        end
+        previousXP = currentXP
+    else
+        print("xpEarnedAmount is not a valid member")
+    end
+end
+
+spawn(function()
+    while wait(1) do
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            trackLevels(player)
+        end
+        trackCoins()
+        trackGems()
+        trackXP()
+    end
+end)
+
+local startTime = os.time()
+
+spawn(function()
+    while true do
+        local currentTime = os.time() - startTime
+        local hours = math.floor(currentTime / 3600)
+        local minutes = math.floor((currentTime % 3600) / 60)
+        local seconds = currentTime % 60
+        local timeString = string.format("%02d:%02d:%02d", hours, minutes, seconds)
+        timerLabel:UpdateLabel("Timer: " .. timeString)
+        wait(1)
+    end
+end)
 -- end of stat tracker
 
 other:NewKeybind("ToggleUI", "Toggle UI with this keybind.", Enum.KeyCode.J, function()
