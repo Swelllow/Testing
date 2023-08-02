@@ -4,22 +4,45 @@ game:GetService("ReplicatedStorage").Remote.ReqCharVars.OnClientInvoke = functio
 -- secondary anticheat bypass thing 
 game:GetService("ReplicatedStorage").Remote.FetchPos.OnClientInvoke = function()return wait(9e9)end
 
+
 -- map list extractor
 getgenv().maps = {}
-local script = require(game.ReplicatedStorage.SharedModules.FE2Library)
-for i,v in pairs(script.getOfficialMapData()) do
-	table.insert(maps,v.mapName)
-end
-local highlights = game:GetService("Players").LocalPlayer.PlayerGui.MenuGui.Goals.Window.Content.Pages.Highlights.Maps
 
-for i,v in pairs(highlights:GetChildren()) do
-    if v.Name == "HighlightFrame" then
-        local pre = string.split(v.MapName.Text, "[")[1]
-        local mapName = pre:sub(2, #pre - 1)
-	if not table.find(maps, mapName) then
-		table.insert(maps, mapName)
-	end
+local script = require(game.ReplicatedStorage.SharedModules.FE2Library)
+for i, v in pairs(script.getOfficialMapData()) do
+    table.insert(maps, v.mapName)
+end
+
+local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+if playerGui.MenuGui then
+    print("MenuGui exists")
+    
+    if playerGui.MenuGui:FindFirstChild("Goals") then
+        local goals = playerGui.MenuGui.Goals
+        
+        if goals.Window and goals.Window.Content and goals.Window.Content.Pages and goals.Window.Content.Pages.Highlights then
+            print("Goals window and Highlights exist")
+            
+            local highlights = goals.Window.Content.Pages.Highlights.Maps
+            
+            for i, v in pairs(highlights:GetChildren()) do
+                if v.Name == "HighlightFrame" then
+                    local pre = string.split(v.MapName.Text, "[")[1]
+                    local mapName = pre:sub(2, #pre - 1)
+                    if not table.find(maps, mapName) then
+                        table.insert(maps, mapName)
+                    end
+                end
+            end
+        else
+            print("Goals window content or Highlights not found, skipping map extraction...")
+        end
+    else
+        print("Goals window doesn't exist, skipping map extraction...")
     end
+else
+    print("MenuGui doesn't exist, skipping map extraction...")
 end
 wait = task.wait
 
@@ -114,132 +137,145 @@ local tas = t:NewSection("TAS")
 local other = k:NewSection("Other")
 local credits = c:NewSection("Credits")
 
+
+-- stat tracker by Moz
 getgenv().wow = true
 
--- Coins Tracker All credits to Moz
 local players = game:GetService("Players")
 local localPlayer = players.LocalPlayer
 local playerGui = localPlayer.PlayerGui
-local coinsAmount = playerGui.MenuGui.Shop.Currencies.Coins.Amount
 
-local coinsLabel = statTracker:NewLabel("Coins Earned: 0")
-local initialCoins = tonumber(coinsAmount.Text)
-
--- Gems Tracker All credits to Moz
-local gemsAmount = playerGui.MenuGui.Shop.Currencies.Gems.Amount
-
-local gemsLabel = statTracker:NewLabel("Gems Earned: 0")
-local initialGems = tonumber(gemsAmount.Text)
-
--- Level Tracker (Broken) All credits to Moz
 local players = game:GetService("Players")
-local levelLabel = statTracker:NewLabel("Level Earned: 0")
-local playerLevels = {}
+local localPlayer = players.LocalPlayer
+local playerGui = localPlayer.PlayerGui
 
-local function trackLevel(player)
-    local levelPath = player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid:FindFirstChild("LvlText")
-    if levelPath and levelPath:IsA("TextLabel") then
+if playerGui.MenuGui then
+    local coinsAmount = playerGui.MenuGui.Shop.Currencies.Coins.Amount
+
+    local coinsLabel = statTracker:NewLabel("Coins Earned: 0")
+    local initialCoins = tonumber(coinsAmount.Text)
+
+    local gemsAmount = playerGui.MenuGui.Shop.Currencies.Gems.Amount
+
+    local gemsLabel = statTracker:NewLabel("Gems Earned: 0")
+    local initialGems = tonumber(gemsAmount.Text)
+
+    local levelLabel = statTracker:NewLabel("Levels Earned: 0") 
+    local playerLevels = {}
+    local totalLevelEarned = 0 
+
+    local function trackLevel(player)
+        local levelPath = player:WaitForChild("PlayerGui"):WaitForChild("GameGui"):WaitForChild("HUD"):WaitForChild("Main"):WaitForChild("GameStats"):WaitForChild("Stats"):WaitForChild("XPStats"):WaitForChild("Icon"):WaitForChild("Info")
+        
         local initialLevel = playerLevels[player]
         local currentLevel = levelPath.Text
-        if initialLevel and currentLevel ~= initialLevel then
-            local levelEarned = tonumber(currentLevel) - tonumber(initialLevel)
-            levelLabel:UpdateLabel("Level Earned: " .. levelEarned)
+
+        if initialLevel then
+            local levelDifference = tonumber(currentLevel) - tonumber(initialLevel)
+            if levelDifference > 0 then
+                totalLevelEarned = totalLevelEarned + levelDifference
+                levelLabel:UpdateLabel("Levels Earned: " .. totalLevelEarned) 
+            end
         end
+        
         playerLevels[player] = currentLevel
     end
-end
 
-local function trackAllLevels()
-    for _, player in ipairs(players:GetPlayers()) do
-        trackLevel(player)
-    end
-end
-
-spawn(function()
-    while wait(1) do
-        trackAllLevels()
-    end
-end)
-
--- XP Tracker All credits to Moz
-local success, xpEarnedAmount = pcall(function()
-    return playerGui.MenuGui.Goals.Window.Content.Pages.Stats.xpEarned.Amount
-end)
-
-local xpLabel = statTracker:NewLabel("XP Earned: 0")
-local initialXP = tonumber(xpEarnedAmount.Text)
-
-local coinsEvent = Instance.new("BindableEvent")
-local gemsEvent = Instance.new("BindableEvent")
-local xpEvent = Instance.new("BindableEvent")
-
-coinsEvent.Event:Connect(function(coins)
-    coinsLabel:UpdateLabel("Coins Earned: " .. coins)
-end)
-
-gemsEvent.Event:Connect(function(gems)
-    gemsLabel:UpdateLabel("Gems Earned: " .. gems)
-end)
-
-xpEvent.Event:Connect(function(xp)
-    xpLabel:UpdateLabel("XP Earned: " .. xp)
-end)
-
-local function trackCoins()
-    local currentCoins = tonumber(coinsAmount.Text)
-    if initialCoins then
-        local coinsEarned = currentCoins - initialCoins
-        coinsEvent:Fire(coinsEarned)
-    else
-        initialCoins = currentCoins
-    end
-end
-
-local function trackGems()
-    local currentGems = tonumber(gemsAmount.Text)
-    if initialGems then
-        local gemsEarned = currentGems - initialGems
-        gemsEvent:Fire(gemsEarned)
-    else
-        initialGems = currentGems
-    end
-end
-
-local function trackXP()
-    if success and xpEarnedAmount then
-        local currentXP = tonumber(xpEarnedAmount.Text)
-        if initialXP then
-            local xpEarned = currentXP - initialXP
-            xpEvent:Fire(xpEarned)
-        else
-            initialXP = currentXP
+    local function trackAllLevels()
+        for _, player in ipairs(players:GetPlayers()) do
+            trackLevel(player)
         end
     end
+
+    spawn(function()
+        while wait(1) do
+            trackAllLevels()
+        end
+    end)
+
+    local xpEarnedAmount
+    local success, xpAmount = pcall(function()
+        xpEarnedAmount = playerGui.MenuGui.Goals and playerGui.MenuGui.Goals.Window.Content.Pages.Stats.xpEarned.Amount
+    end)
+
+    if success and xpEarnedAmount then
+        local xpLabel = statTracker:NewLabel("XP Earned: 0")
+        local initialXP = tonumber(xpEarnedAmount.Text)
+        local previousXP = initialXP
+
+        local coinsEvent = Instance.new("BindableEvent")
+        local gemsEvent = Instance.new("BindableEvent")
+        local xpEvent = Instance.new("BindableEvent")
+
+        coinsEvent.Event:Connect(function(coins)
+            coinsLabel:UpdateLabel("Coins Earned: " .. coins)
+        end)
+
+        gemsEvent.Event:Connect(function(gems)
+            gemsLabel:UpdateLabel("Gems Earned: " .. gems)
+        end)
+
+        xpEvent.Event:Connect(function(xp)
+            xpLabel:UpdateLabel("XP Earned: " .. xp)
+        end)
+
+        local function trackCoins()
+            local currentCoins = tonumber(coinsAmount.Text)
+            local coinsEarned = currentCoins - initialCoins
+            if coinsEarned > 0 then
+                coinsEvent:Fire(coinsEarned)
+            end
+        end
+
+        local function trackGems()
+            local currentGems = tonumber(gemsAmount.Text)
+            local gemsEarned = currentGems - initialGems
+            if gemsEarned > 0 then
+                gemsEvent:Fire(gemsEarned)
+            end
+        end
+
+        local function trackXP()
+            if success and xpEarnedAmount then
+                local currentXP = tonumber(xpEarnedAmount.Text)
+                local xpEarned = currentXP - previousXP
+                if xpEarned > 0 then
+                    xpEvent:Fire(xpEarned)
+                end
+                previousXP = currentXP
+            end
+        end
+
+        spawn(function()
+            while wait(1) do
+                trackCoins()
+                trackGems()
+                trackXP()
+            end
+        end)
+
+        local startTime = os.time()
+
+        local timerLabel = statTracker:NewLabel("Timer: 00:00:00")
+
+        spawn(function()
+            while true do
+                local currentTime = os.time() - startTime
+                local hours = math.floor(currentTime / 3600)
+                local minutes = math.floor((currentTime % 3600) / 60)
+                local seconds = currentTime % 60
+                local timeString = string.format("%02d:%02d:%02d", hours, minutes, seconds)
+                timerLabel:UpdateLabel("Timer: " .. timeString)
+                wait(1)
+            end
+        end)
+    else
+        print("Failed to get xpEarnedAmount or it's not a valid member")
+    end
+else
+    print("MenuGui doesn't exist, skipping...")
 end
-
-spawn(function()
-    while wait(1) do
-        trackCoins()
-        trackGems()
-        trackXP()
-    end
-end)
-
-local startTime = os.time()
-
-local timerLabel = statTracker:NewLabel("Timer: 00:00:00")
-
-spawn(function()
-    while true do
-        local currentTime = os.time() - startTime
-        local hours = math.floor(currentTime / 3600)
-        local minutes = math.floor((currentTime % 3600) / 60)
-        local seconds = currentTime % 60
-        local timeString = string.format("%02d:%02d:%02d", hours, minutes, seconds)
-        timerLabel:UpdateLabel("Timer: " .. timeString)
-        wait(1)
-    end
-end)
+-- end of stat tracker
 
 other:NewKeybind("ToggleUI", "Toggle UI with this keybind.", Enum.KeyCode.J, function()
     if getgenv().ui == true then
