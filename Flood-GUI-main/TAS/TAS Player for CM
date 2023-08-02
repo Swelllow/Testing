@@ -1,37 +1,46 @@
+if Legit == nil then
+    Legit = false
+end
 
---local Mirrored = false
 local NewV = Vector3.new
 local NewC = CFrame.new
 local AngC = CFrame.fromEulerAnglesXYZ
 local LP = game.Players.LocalPlayer
+
+local function toggleSlide(newValue)
+    if newValue == true then
+        LP.Character.HumanoidRootPart.Size = Vector3.new(2, 1, 1)
+        LP.Character.BoundingBox.Size = Vector3.new(2, 1, 1)
+        LP.Character.Humanoid.HipHeight = -1.5
+    else
+        LP.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+        LP.Character.BoundingBox.Size = Vector3.new(2, 2, 1)
+        LP.Character.Humanoid.HipHeight = 0
+    end
+    LP.Character.Animate.Sliding:Fire(newValue)
+end
+
+local function doSlide(delay)
+    toggleSlide(true)
+    task.wait(delay)
+    toggleSlide(false)
+end
+
 local Alert = getsenv(LP.PlayerScripts.CL_MAIN_GameScript).newAlert
-local Multi = Workspace.Multiplayer
+local Multi = workspace.Multiplayer
 local RS = game:GetService('RunService')
-local wait = task.wait
 
 -- IMPORTANT
 local CLMAIN = getsenv(LP.PlayerScripts.CL_MAIN_GameScript)
 CLMAIN.newAlert("TAS Player Started.")
+
 local Animate = getsenv(LP.Character.Animate)
-local RunName = Multi:WaitForChild('NewMap'):WaitForChild('Settings'):WaitForChild('MapName').Value
-local TAS = game:GetService("HttpService"):JSONDecode(readfile(RunName .. ".json"))
+local mapName = Multi:WaitForChild('NewMap'):WaitForChild('Settings'):GetAttribute("MapName")
+local TAS = game:GetService("HttpService"):JSONDecode(readfile(mapName .. ".json"))
 CLMAIN.newAlert("TAS Loaded!")
+
 local Map = Multi:WaitForChild("Map")
-local mapName = Map:WaitForChild('Settings').MapName.Value
-
-if SkipMirroredMaps[mapName] then
-    CLMAIN.newAlert('Mirrored script skipped for map: ' .. mapName)
-else
-    -- Mirrored variable removed or commented out
-    -- if Map:WaitForChild('Settings'):FindFirstChild("_MirrorMap") then
-    --     CLMAIN.newAlert('Map is not mirrored.')
-    -- else
-    --     CLMAIN.newAlert('Map is mirrored, TAS will be played mirrored!')
-    -- end
-end
-
-
-local Spawn = Map:WaitForChild('Spawn') -- Define the Spawn variable here
+local Spawn = Map:WaitForChild('Spawn')
 
 local function SetPrimaryPart()
     local Map = game.Workspace.Multiplayer:WaitForChild("Map")
@@ -39,7 +48,7 @@ local function SetPrimaryPart()
     local connections = {}
     for i,v in ipairs(Map:GetChildren()) do
         if v.Name == "Spawn" then
-            v.Name = "Part" -- Change the name to "Part"
+            v.Name = "Part"
             Part = v
             break
         end
@@ -51,71 +60,77 @@ local function SetPrimaryPart()
     Map.PrimaryPart = Part
 end
 
-local initialFrame = TAS[3].CCFrame
-local defaultSpawn = game:GetService("Workspace").Multiplayer.Map.Spawn
-local spawnPosition = defaultSpawn.Position
-local spawnDifference = Spawn.Position - spawnPosition
-
-LP.Character.HumanoidRootPart.CFrame = NewC(
-    initialFrame[1] + spawnDifference.X,
-    initialFrame[2] + spawnDifference.Y,
-    initialFrame[3] + spawnDifference.Z
-) * AngC(initialFrame[4], initialFrame[5], initialFrame[6])
-LP.Character.HumanoidRootPart.Velocity = NewV(TAS[3].VVelocity[1], TAS[3].VVelocity[2], TAS[3].VVelocity[3])
-local initialCameraFrame = TAS[3].CCameraCFrame
-local defaultCamera = game:GetService("Workspace").Camera
-local cameraPosition = defaultCamera.CFrame.Position
-local cameraDifference = Spawn.Position - cameraPosition
-
-Workspace.CurrentCamera.CFrame = NewC(
-    initialCameraFrame[1] + cameraDifference.X,
-    initialCameraFrame[2] + cameraDifference.Y,
-    initialCameraFrame[3] + cameraDifference.Z
-) * AngC(initialCameraFrame[4], initialCameraFrame[5], initialCameraFrame[6])
-
 game:GetService("ReplicatedStorage").Remote.StartClientMapTimer.OnClientEvent:Wait()
-local TimeStart = os.clock()
+task.wait(.1)
+local TimeStart = tick()
 CLMAIN.newAlert('TAS Running..')
+
 PlayAnim = Animate.playAnimation
 Animate.playAnimation = function() end
+
 for _, v in next, Map:GetDescendants() do
     if v.Name == 'ButtonIcon' then
         local buttonPart = v.Parent.Parent:FindFirstChildOfClass('Part')
         if buttonPart ~= nil then
             buttonPart.Size = Vector3.new(6,6,6)
-            if debugmode == true then
-                buttonPart.Color = Color3.new(0,0,1)
-                buttonPart.Transparency = 0
-            end
         end
     end
 end
 
-local RayParts = Instance.new('Model')
-RayParts.Name = "RayParts"
-RayParts.Parent = Workspace
-local radius = 0.05
+local BoundingBox = LP.Character.BoundingBox
+BoundingBox.CanTouch = false
 
-local function MakeRayVisible(ray, color)
-    local midpoint = ray.Origin + ray.Direction/2
-
-    local part = Instance.new("Part")
-    part.CanCollide = false
-    part.CanTouch = false
-    part.Parent = RayParts
-    part.Anchored = true
-    part.CFrame = CFrame.new(midpoint, ray.Origin)
-    part.Size = Vector3.new(radius, radius, ray.Direction.Magnitude)
-
-    part.Material = Enum.Material.Neon
-    part.Color = color
-
-    return part
+local function toggleTouch(bool)
+    BoundingBox.CanTouch = bool
 end
 
-local defaultSpawn = game:GetService("Workspace").Multiplayer.Map.Spawn
-local Offset = Spawn.Position - defaultSpawn.Position
-local DiffAnim = 0
+function isRandomString(str)
+    for i = 1, #str do
+        local ltr = str:sub(i, i)
+        if ltr:lower() == ltr then
+            return false
+        end     
+    end
+    return true
+end
+
+local function badCheck(Thing)
+    return not (Thing:FindFirstChild("_Wall") or Thing.Parent.Name ~= "AirTank" or (Thing.Name == "Part" and isRandomString(Thing.Parent.Name)))
+end
+
+local walljumpfix
+walljumpfix = LP.Character.HumanoidRootPart.Touched:Connect(function(Thing)
+    if badCheck(Thing) then
+        toggleTouch(true)
+        print("Touched:", Thing:GetFullName())
+    elseif Thing.Name == "RopeStart" then
+        toggleTouch(true)
+        firetouchinterest(Thing, BoundingBox, 0)
+    end
+end)
+
+local walljumpfix2
+walljumpfix2 = LP.Character.HumanoidRootPart.TouchEnded:Connect(function(Thing)
+    if badCheck(Thing) then
+        toggleTouch(false)
+    elseif Thing.Name == "RopeStart" then
+        toggleTouch(false)
+        firetouchinterest(Thing, BoundingBox, 1)
+    end
+end)
+
+local function activateAnimation(CurrentAnimation)
+    if CurrentAnimation and CurrentAnimation[1] then 
+        PlayAnim(CurrentAnimation[1],CurrentAnimation[2],LP.Character.Humanoid)
+        if CurrentAnimation[1] == "walk" then
+            Animate.setAnimationSpeed(.76) 
+        elseif CurrentAnimation[1] == "slide" then
+            task.spawn(doSlide, 0.10)
+        end
+    end
+end
+
+local Offset = Spawn.Position - NewV(0, 1000, 0)
 local OldFrame = 3
 
 local Loop
@@ -125,62 +140,41 @@ Death = LP.Character.Humanoid.Changed:Connect(function(Change)
     if Change == "Health" and LP.Character.Humanoid.Health == 0 then
         Death:Disconnect()
         Loop:Disconnect()
-        RayParts:Destroy()
         CLMAIN.newAlert('Player Died.', Color3.new(1, 0, 0))
     end
 end)
 
-Loop = RS.Heartbeat:connect(function(DeltaTime)
+local RootPart = LP.Character.HumanoidRootPart
+Loop = RS.Heartbeat:Connect(function(DeltaTime)
     local NewFrame = #TAS
     local Divider = OldFrame + 60
     if Divider < NewFrame then
         NewFrame = Divider
     end
     for i = OldFrame, NewFrame do
-        if (os.clock() - TimeStart) < TAS[i].time then
+        local CurrentInfo = TAS[i]
+        if (tick() - TimeStart) < CurrentInfo.time then
             break
         elseif i >= #TAS then
             Death:Disconnect()
             Loop:Disconnect()
-            RayParts:Destroy()
+            toggleTouch(true)
+            toggleTouch = nil
+            walljumpfix:Disconnect()
+            walljumpfix2:Disconnect()
             Animate.playAnimation = PlayAnim
             CLMAIN.newAlert('TAS Run Finished!', Color3.new(0, 1, 0))
             CLMAIN.newAlert('TAS Player By Tomato', Color3.new(0, 1, 0))
-        elseif (os.clock() - TimeStart) >= TAS[i].time then
+        elseif (tick() - TimeStart) >= CurrentInfo.time then
             OldFrame = i
-            local CF = TAS[i].CCFrame
-            local CCF = TAS[i].CCameraCFrame
-            local VV = TAS[i].VVelocity
-
-            if Mirrored == true then
-                local nCF = CF
-                CF[1] = nCF[1]
-                CF[2] = nCF[2]
-                CF[3] = -nCF[3]
-                CF[4] = nCF[4]
-                CF[5] = nCF[5]
-                CF[6] = -nCF[6]
-                VV[3] = -VV[3]
-                CCF[3] = -CCF[3]
-            end
-
-            local CA = TAS[i].AAnimation
-
-            LP.Character.HumanoidRootPart.CFrame = NewC(CF[1], CF[2], CF[3]) * AngC(CF[4], CF[5], CF[6]) + Offset
-            LP.Character.HumanoidRootPart.Velocity = NewV(VV[1], VV[2], VV[3])
-            Workspace.CurrentCamera.CFrame = NewC(CCF[1], CCF[2], CCF[3]) * AngC(CCF[4], CCF[5], CCF[6]) + Offset
-
-            if TAS[i].AAnimation and TAS[i].AAnimationChanged and TAS[i].AAnimationChanged > DiffAnim then
-                if CA[1] == "walk" then
-                    PlayAnim(CA[1], CA[2], LP.Character.Humanoid)
-                    DiffAnim = TAS[i].AAnimationChanged
-                    Animate.setAnimationSpeed(0.76)
-                elseif CA[1] == "climb" then
-                else
-                    PlayAnim(CA[1], CA[2], LP.Character.Humanoid)
-                    DiffAnim = TAS[i].AAnimationChanged
-                end
-            end
+            local CCFrame = CurrentInfo.CCFrame
+            local CCameraCFrame = CurrentInfo.CCameraCFrame
+            local VVelocity = CurrentInfo.VVelocity
+            local CurrentAnimation = CurrentInfo.AAnimation
+            RootPart.CFrame = NewC(CCFrame[1], CCFrame[2], CCFrame[3]) * AngC(CCFrame[4], CCFrame[5], CCFrame[6]) + Offset
+            workspace.CurrentCamera.CFrame = NewC(CCameraCFrame[1], CCameraCFrame[2], CCameraCFrame[3]) * AngC(CCameraCFrame[4], CCameraCFrame[5], CCameraCFrame[6]) + Offset
+            RootPart.Velocity = NewV(VVelocity[1], VVelocity[2], VVelocity[3])
+            activateAnimation(CurrentAnimation)
         end
     end
 end)
