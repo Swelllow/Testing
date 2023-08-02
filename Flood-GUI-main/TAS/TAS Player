@@ -105,7 +105,7 @@ local Spawn = (function() -- new spawn finder by "tomato.txt" on discord
     return Spawn
 end)()
 
-game:GetService("ReplicatedStorage").Remote.StartClientMapTimer.OnClientEvent:Wait(0.1)
+game:GetService("ReplicatedStorage").Remote.StartClientMapTimer.OnClientEvent:Wait()
 local TimeStart = tick()
 CLMAIN.newAlert('TAS Running..', Color3.fromRGB(255, 149, 5))
 PlayAnim = Animate.playAnimation
