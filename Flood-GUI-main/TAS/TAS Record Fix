@@ -323,25 +323,30 @@ local function SetUpMap()
         if isRandomString(v.Name) then 
             local Hitbox = v:GetChildren()[2]
             if Hitbox and isRandomString(Hitbox.Name) then
-                local selectbox = Instance.new("SelectionBox", Hitbox)
-                Hitbox.Color = Color3.fromRGB(255,140,0)
+                xpcall(function()
+                    local selectbox = Instance.new("SelectionBox", Hitbox)
+                    Hitbox.Color = Color3.fromRGB(255, 140, 0)
 
-                selectbox.Adornee = Hitbox
-                selectbox.Color3 = Color3.fromRGB(255,140,0)
+                    selectbox.Adornee = Hitbox
+                    selectbox.Color3 = Color3.fromRGB(255, 140, 0)
 
-                getgenv().delayy = false
-                Hitbox.Touched:Connect(function(part)
-                    if delayy == false then
-                        Alert("Button Touched!",Color3.fromRGB(255,140,0))
-                        delayy = true
-                        wait(1)
-                        delayy = false
-                    end
+                    getgenv().delayy = false
+                    Hitbox.Touched:Connect(function(part)
+                        if delayy == false then
+                            Alert("Button Touched!", Color3.fromRGB(255, 140, 0))
+                            delayy = true
+                            wait(1)
+                            delayy = false
+                        end
+                    end)
+                    print("stupid button connected? :", Hitbox.Parent)
+                end, function(err)
+                    warn("Error handling button interaction:", err)
                 end)
-                print("stupid button connected? :", Hitbox.Parent)
             end
         end
     end
+
     print("Buttons script loaded for map")
 end
 
