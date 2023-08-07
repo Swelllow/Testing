@@ -527,6 +527,19 @@ auto:NewButton("Download TAS files", "Downloads Required TAS files!", function()
 	clmain.newAlert("Finished Downloading TAS files")
 end)
 
+tas:NewButton("Create-TAS for CM", "Create a TAS for CM, Press then enter lift.", function()
+    local Fix = coroutine.wrap(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Recorder%20for%20CM", true))()
+    end)
+    
+    Fix()
+end)
+
+tas:NewButton("Run-TAS For CM", "For CM only!", function()
+	loadstring(game:HttpGet('https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Player%20for%20CM'))
+	
+end)
+
 tas:NewButton("Create-TAS", "Create a TAS.", function()
     local Fix = coroutine.wrap(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Record%20Fix", true))()
@@ -535,75 +548,12 @@ tas:NewButton("Create-TAS", "Create a TAS.", function()
     Fix()
 end)
 
-tas:NewButton("Run-TAS For CM", "For CM only!", function()
-	loadstring(game:HttpGet('https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Player%20for%20CM'))
-	"TAS Player Fixed By Tomato with help of Moz"
-end)
-
-tas:NewButton("Create-TAS", "Create a TAS.", function()
-	local Fix = coroutine.wrap(function()
-	    loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Record%20Fix", true))()
-    end)
-        local ButtonStuff = coroutine.wrap(function()
-            local Map = workspace:WaitForChild("Map") -- voiz tas map clone 
-            task.wait(.2)
-            for _, v in ipairs(Map:GetDescendants()) do
-                if v.ClassName == "TouchTransmitter" then 
-                    local Hitbox = v.Parent
-                    Hitbox.Size = Hitbox.Size * 1.8
-                    Hitbox.Color = Color3.fromRGB(255,140,0)
-                    local selectbox = Instance.new("SelectionBox", Hitbox)
-                    selectbox.Adornee = Hitbox
-                    selectbox.Color3 = Color3.fromRGB(255,140,0)
-                    getgenv().delayy = false
-                    Hitbox.Touched:Connect(function(part)
-                        if delayy == false then
-                            clmain.newAlert("Button Touched!",Color3.fromRGB(255,140,0))
-                            delayy = true
-                            wait(1)
-                            delayy = false
-                        end
-                    end)
-                    print("stupid button ?", Hitbox.Parent)
-                end
-            end
-            print("Buttons script loaded for map: "..Map.Settings.MapName.Value)
-        end)
-	Fix()
-	ButtonStuff()
-end)
-
 tas:NewButton("Edit-TAS", "Edit a TAS file.", function()
 	local Fix = coroutine.wrap(function()
 	    loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/Tas%20Editor", true))()
     end)
-        local ButtonStuff = coroutine.wrap(function()
-            local Map = workspace:WaitForChild("Map") -- voiz tas map clone 
-            task.wait(.2)
-            for _, v in ipairs(Map:GetDescendants()) do
-                if v.ClassName == "TouchTransmitter" then 
-                    local Hitbox = v.Parent
-                    Hitbox.Size = Hitbox.Size * 1.8
-                    Hitbox.Color = Color3.fromRGB(255,140,0)
-                    local selectbox = Instance.new("SelectionBox", Hitbox)
-                    selectbox.Adornee = Hitbox
-                    selectbox.Color3 = Color3.fromRGB(255,140,0)
-                    getgenv().delayy = false
-                    Hitbox.Touched:Connect(function(part)
-                        if delayy == false then
-                            clmain.newAlert("Button Touched!",Color3.fromRGB(255,140,0))
-                            delayy = true
-                            wait(1)
-                            delayy = false
-                        end
-                    end)
-                    print("stupid button ?", Hitbox.Parent)
-                end
-            end
-            print("Buttons script loaded for map: "..Map.Settings.MapName.Value)
-        end)
-	Fix()
-	ButtonStuff()
+
+    Fix()
 end)
 
 local oldindex
