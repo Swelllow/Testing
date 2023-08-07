@@ -475,6 +475,15 @@ end)
 
 --End of Auto Rescue and Lost Page
 
+auto:NewToggle("Auto Rebirth", "Will automatically Rebirth for you!", function(isEnabled)
+    toggleIsActive = isEnabled
+
+    while toggleIsActive do
+        game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("ReqRebirth"):FireServer()
+        wait(60) 
+    end
+end)
+
 loc:NewToggle("Anti-Fog", "Will automatically remove the fog!", function(t)
     autoPlayEnabled = t
     while autoPlayEnabled do
@@ -567,6 +576,11 @@ oldindex = hookmetamethod(game, "__index", function(self, b)
 	end
 	return oldindex(self, b)
 end)
+
+tas:NewButton("Boost Intensity", "Will boost the Intensity!", function()
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("BoostIntensity"):FireServer()
+end)
+
 tas:NewKeybind("Toggle Swim", "Only works while creating TAS.", Enum.KeyCode.T, function()
 	if getgenv().swim == true then
 		getgenv().swim = false
