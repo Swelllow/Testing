@@ -472,7 +472,7 @@ local function SaveRun()
     -- ending line
     local mapName = workspace.Map.Settings:GetAttribute("MapName")
     local AllPlayerInfo = minfile(AllPlayerInfo)
-    writefile("TAS/"..mapName..".json", game:GetService("HttpService"):JSONEncode(AllPlayerInfo))
+    writefile("CM_TAS/"..mapName..".json", game:GetService("HttpService"):JSONEncode(AllPlayerInfo))
     Alert("Saved", Color3.fromRGB(0, 255, 0), 1)
 end
 
@@ -481,8 +481,8 @@ ReplicatedStorage.Remote.StartClientMapTimer.OnClientEvent:Wait()
 task.wait(1)
 SetUpMap()
 
-if not isfolder("TAS") then
-    makefolder("TAS")
+if not isfolder("CM_TAS") then
+    makefolder("CM_TAS")
 end
 
 local timer = tick()
