@@ -44,11 +44,11 @@ end
 local Animate = getsenv(LP.Character.Animate)
 local Map = Multi:WaitForChild('NewMap')
 local mapName = Map:WaitForChild('Settings'):GetAttribute("MapName")
-local TAS = game:GetService("HttpService"):JSONDecode(readfile(mapName .. ".json"))
+local TAS = game:GetService("HttpService"):JSONDecode(readfile("CM_TAS/" .. mapName .. ".json"))
 if not TAS then
-    CLMAIN.newAlert("TAS file for "..mapName.." is not in workspace folder!", Color3.new(1,0,0))
+    CLMAIN.newAlert("TAS file for "..mapName.." is not in CM_TAS folder!", Color3.new(1,0,0))
     LP.Character.Humanoid.Health = 0
-    LP.CharacterAdded:wait()
+    LP.CharacterAdded:Wait()
 else
 CLMAIN.newAlert("TAS Loaded!")
 repeat task.wait() until Map.Name == "Map"
