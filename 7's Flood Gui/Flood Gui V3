@@ -462,7 +462,7 @@ local function autoTeleport()
                 end
             end
         end
-        wait(3)
+        wait()
     end
 end
 
