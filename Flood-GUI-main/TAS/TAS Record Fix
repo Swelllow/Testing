@@ -221,7 +221,6 @@ local function SetUpGui()
 end
 
 local function hookAnimation()
-    local connection
     repeat
         SenvAnimation = getsenv(LocalPlayer.Character:WaitForChild("Animate"))
         task.wait()
@@ -233,17 +232,11 @@ local function hookAnimation()
             PlayAnimation(AnimationState[1],AnimationState[2], LocalPlayer.Character.Humanoid)
         end
     end
+    task.wait()
     if PlayAnimation == nil then
-        print("the animation script is f*cked"..RunID)
+        print("the animation script is f*cked")
     end
-    print("Updated animation hook values"..RunID)
-    connection = LocalPlayer.CharacterAdded:Connect(function(char)
-        local animate = char:WaitForChild("Animate")
-        if animate.Enabled == true then
-            hookAnimation()
-        end
-    end)
-    return connection
+    print("Updated animation hook values")
 end
 
 local function SetUpMap()
