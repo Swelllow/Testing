@@ -475,14 +475,14 @@ end)
 
 --End of Auto Rescue and Lost Page
 
-auto:NewToggle("Auto Rebirth", "Will automatically Rebirth for you!", function(isEnabled)
+--[[auto:NewToggle("Auto Rebirth", "Will automatically Rebirth for you!", function(isEnabled)
     toggleIsActive = isEnabled
 
     while toggleIsActive do
         game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("ReqRebirth"):FireServer()
         wait(60) 
     end
-end)
+end)]]
 
 loc:NewToggle("Anti-Fog", "Will automatically remove the fog!", function(t)
     autoPlayEnabled = t
