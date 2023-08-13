@@ -390,10 +390,10 @@ task.spawn(function()
 		end
 end)
 
-Legit = false
+--[[Legit = false
 auto:NewToggle("Legit Mode", "Will make you look legit to other players", function(t)
 	Legit = t
-end)
+end)]]
 
 local player = game.Players.LocalPlayer
 local character = player.Character
