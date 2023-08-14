@@ -59,10 +59,6 @@ local RS = game:GetService('RunService')
 -- IMPORTANT
 local CLMAIN = getsenv(LP.PlayerScripts.CL_MAIN_GameScript)
 local oldalert
-oldalert = hookfunction(CLMAIN.newAlert, function(...)
-    warn("Alert function fired with args:", ...)
-    return oldalert(...)
-end)
 if not getrenv().alreadystarted then
     CLMAIN.newAlert("TAS Player Started.", Color3.fromRGB(255, 149, 5))
     getrenv().alreadystarted = true
