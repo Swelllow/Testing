@@ -2160,10 +2160,11 @@ local function ResetToNormal()
     RecordLoop:Disconnect()
     KeybindsConnect:Disconnect()
     Death:Disconnect()
-    Map:Destroy()
+    LocalPlayer.Character.Humanoid.Health = 0
     RealHUD.Parent = OldParent
     HUD:Destroy()
-    LocalPlayer.Character.Humanoid.Health = 0
+    wait(3)
+    Workspace.Multiplayer.Map:Destroy()
     print("Reset to normal"..RunID)
 end
 RecordLoop = RunService.Heartbeat:Connect(function(deltaTime)
