@@ -545,8 +545,11 @@ tas:NewButton("Create-TAS for CM", "Create a TAS for CM, Press then enter lift."
 end)
 
 tas:NewButton("Run-TAS For CM", "For CM only!", function()
+    local Fix = coroutine.wrap(function()
 	loadstring(game:HttpGet('https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Player%20for%20CM'))
-	
+    end)
+    
+    Fix()
 end)
 
 tas:NewButton("Create-TAS", "Create a TAS.", function()
@@ -558,8 +561,8 @@ tas:NewButton("Create-TAS", "Create a TAS.", function()
 end)
 
 tas:NewButton("Edit-TAS", "Edit a TAS file.", function()
-	local Fix = coroutine.wrap(function()
-	    loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/Tas%20Editor", true))()
+    local Fix = coroutine.wrap(function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/Tas%20Editor", true))()
     end)
 
     Fix()
