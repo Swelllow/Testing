@@ -546,7 +546,7 @@ end)
 
 tas:NewButton("Run-TAS For CM", "For CM only!", function()
     local Fix = coroutine.wrap(function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Player%20for%20CM"))
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/Swelllow/Testing/main/Flood-GUI-main/TAS/TAS%20Player%20for%20CM"))()
     end)
     
     Fix()
