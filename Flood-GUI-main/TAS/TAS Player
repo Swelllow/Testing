@@ -20,7 +20,7 @@ local NewV = Vector3.new
 local NewC = CFrame.new
 local AngC = CFrame.fromEulerAnglesXYZ
 local LP = game.Players.LocalPlayer
-local function hookAnimation()
+--[[local function hookAnimation()
     repeat
         SenvAnimation = getsenv(LP.Character:WaitForChild("Animate"))
         task.wait()
@@ -31,7 +31,7 @@ local function hookAnimation()
         PlayAnimation(AnimationState[1], AnimationState[2], LP.Character.Humanoid)
     end
     print("Animation has been hooked.")
-end
+end]]
 local function toggleSlide(newValue)
     if newValue == true then
         LP.Character.HumanoidRootPart.Size = Vector3.new(2, 1, 1)
@@ -172,7 +172,17 @@ end
 
 
 local function badCheck(Thing) --  NOT walljump or NOT AIRTANK or explodingbutton hitbox :check:
-    return not (Thing:FindFirstChild("_Wall") or Thing.Parent.Name ~= "AirTank" or (Thing.Name == "Part" and isRandomString(Thing.Parent.Name)))
+    local Parent = Thing.Parent
+    if not Thing:FindFirstChild("_Wall") then
+        if Parent and not (Thing.Name == "Part" and isRandomString(Parent.Name)) then
+            if Parent.Name == "AirTank" then
+                return true
+            end
+            return true
+        end
+        return true
+    end
+    return false
 end
 local walljumpfix
 walljumpfix = LP.Character.HumanoidRootPart.Touched:Connect(function(Thing)
