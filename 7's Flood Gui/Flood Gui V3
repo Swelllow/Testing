@@ -405,7 +405,7 @@ getgenv().oof = false
 
 
 local autoClickEnabled = false
-local clickInterval = 300 -- 300 seconds = 5 minutes
+local clickInterval = 300 -- 5mins
 
 local function clickButton()
     while autoClickEnabled do
