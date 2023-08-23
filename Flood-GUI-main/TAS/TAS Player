@@ -170,12 +170,8 @@ function isRandomString(str) -- basicly detects if button 99% of the time just c
     return true
 end
 
-local function badCheck(Thing)
-    local isWall = Thing:FindFirstChild("_Wall")
-    local isNotAirTank = Thing.Parent.Name ~= "AirTank"
-    local isNotExplodingButtonHitbox = Thing.Name ~= "Part" or not isRandomString(Thing.Parent.Name)
-
-    return not (isWall or isNotAirTank or isNotExplodingButtonHitbox)
+local function badCheck(Thing) --  NOT walljump or NOT AIRTANK or explodingbutton hitbox :check:
+    return not (Thing:FindFirstChild("_Wall") or Thing.Parent.Name ~= "AirTank" or (Thing.Name == "Part" and isRandomString(Thing.Parent.Name)))
 end
 
 
