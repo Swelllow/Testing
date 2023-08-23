@@ -136,8 +136,8 @@ CLMAIN.newAlert('TAS Running..', Color3.fromRGB(255, 149, 5))
 PlayAnim = Animate.playAnimation
 Animate.playAnimation = function() end
 
-hookAnimation() -- Hook the animation before starting TAS playback
-print("Animation hooked successfully.") -- Print a message indicating successful animation hook
+--[[hookAnimation() -- Hook the animation before starting TAS playback
+print("Animation hooked successfully.") -- Print a message indicating successful animation hook]]
 
 for _, v in next, Map:GetDescendants() do
     if v.Name == 'ButtonIcon' then
