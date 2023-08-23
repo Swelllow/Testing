@@ -186,8 +186,6 @@ walljumpfix = LP.Character.HumanoidRootPart.Touched:Connect(function(Thing)
         toggleTouch(true)
     elseif Thing.Name == "RopeStart" then
         toggleTouch(true)
-    else
-        print("Didn't Touch:", Thing:GetFullName())
     end
 end)
 
