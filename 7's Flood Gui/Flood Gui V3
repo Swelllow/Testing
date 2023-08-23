@@ -404,16 +404,25 @@ getgenv().infjump = false
 getgenv().oof = false
 
 
-local vuEnabled = false
+local autoClickEnabled = false
+local clickInterval = 300 -- 300 seconds = 5 minutes
 
-local VirtualUser = game:GetService("VirtualUser")
+local function clickButton()
+    while autoClickEnabled do
+        wait(clickInterval)
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end
+end
 
-auto:NewToggle("Anti-Afk", "Prevents AFK kick", function(t) --Made by Moz
+auto:NewToggle("Anti-Afk", "Prevents AFK kick", function(t)
+    autoClickEnabled = t
     if t then
         game:GetService("Players").LocalPlayer.Idled:connect(function()
             VirtualUser:CaptureController()
             VirtualUser:ClickButton2(Vector2.new())
         end)
+        clickButton() -- Start the auto-clicking when the toggle is turned on
     end
 end)
 
