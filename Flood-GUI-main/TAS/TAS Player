@@ -184,24 +184,26 @@ local function badCheck(Thing) --  NOT walljump or NOT AIRTANK or explodingbutto
     end
     return false
 end
+
 local walljumpfix
+
 walljumpfix = LP.Character.HumanoidRootPart.Touched:Connect(function(Thing)
     if badCheck(Thing) then
         toggleTouch(true)
-        print("Touched:", Thing:GetFullName())
     elseif Thing.Name == "RopeStart" then
         toggleTouch(true)
-        firetouchinterest(Thing, BoundingBox, 0)
+    else
+        print("Didn't Touch:", Thing:GetFullName())
     end
 end)
 
 local walljumpfix2
+
 walljumpfix2 = LP.Character.HumanoidRootPart.TouchEnded:Connect(function(Thing)
     if badCheck(Thing) then
         toggleTouch(false)
     elseif Thing.Name == "RopeStart" then
         toggleTouch(false)
-        firetouchinterest(Thing, BoundingBox, 1)
     end
 end)
 
