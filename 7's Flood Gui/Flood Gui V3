@@ -638,7 +638,7 @@ end)
 game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Health = 0
 
 local success, errorOrResult = pcall(function()
-    local xpEarnedAmount = playerGui.MenuGui.Goals and playerGui.MenuGui.Goals.Window.Content.Pages.Stats.xpEarned.Amount
+    local xpEarnedAmount = playerGui.MenuGui.Goals and playerGui.MenuGui.Goals.Window.Content.Pages.Stats.Content.xpEarned.Amount
     local initialXP = tonumber(xpEarnedAmount and xpEarnedAmount.Text or 0)
     
     local xpEvent = Instance.new("BindableEvent")
