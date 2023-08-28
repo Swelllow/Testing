@@ -7,8 +7,7 @@ local SkipMirroredMaps = {
     ["Northren Mill"] = true,
     ["Mysterium"] = true,
     ["Decaying Silo"] = true,
-    ["Active Volcanic Mines"] = true,
-    ["Snowy Stronghold"] = true
+    ["Active Volcanic Mines"] = true
 }
 if getgenv().whatthefuckisthisyoumayaskitisaverylongvariblename then
     for _,v in ipairs(getgenv().whatthefuckisthisyoumayaskitisaverylongvariblename) do
