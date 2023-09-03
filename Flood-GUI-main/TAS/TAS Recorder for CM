@@ -76,16 +76,7 @@ local function isRandomString(str)
     return true
 end
 
-local function HandleThing(Interactive)
-    if not isRandomString(Interactive.Name) then
-        Interactive.CanCollide = not Interactive.CanCollide
-        if Interactive.CanCollide == false then
-            Interactive.Transparency = 0
-        elseif Interactive.CanCollide == true then
-            Interactive.Transparency = 1
-        end
-    end
-end
+--Put back if break
 
 local function SetPrimaryPart()
     local Map = game.Workspace.Multiplayer:WaitForChild("Map")
