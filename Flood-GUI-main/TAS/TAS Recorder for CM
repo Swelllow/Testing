@@ -1758,18 +1758,6 @@ local function SetUpMap()
     end)
     task.wait(2)
     for _, v in ipairs(Map:GetDescendants()) do
-        if v.ClassName == "ObjectValue" then
-            local Interactive = v.Parent
-            if not Interactive.ClassName == "Model" then
-                xpcall(HandleThing, function()end, Interactive)
-            elseif Interactive.ClassName == "Model" then
-                for _, Interactive in ipairs(Interactive:GetDescendants()) do
-                    xpcall(HandleThing, function()end, Interactive)
-                end
-            end
-        end
-    end
-    for _, v in ipairs(Map:GetDescendants()) do
         if isRandomString(v.Name) then 
             local Children = (function()
                 local parts = {}
