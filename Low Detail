@@ -81,30 +81,27 @@ local function RemovePlayerAccessories(player)
     end
 end
 
-while true do
-    SetGraphicsSettings()
+SetGraphicsSettings()
 
-    TraverseAndModify(game.Workspace)
+TraverseAndModify(game.Workspace)
 
-    -- Check for "Map" in workspace and modify it
-    local map = game.Workspace:FindFirstChild("Map")
-    if map then
-        TraverseAndModify(map)
-    end
-
-    game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
-
-    -- Additional optimizations
-    game.Lighting.GlobalShadows = false
-    game.Lighting.Outlines = false
-    game.Lighting.Ambient = Color3.new(0, 0, 0)
-    game.Lighting.Brightness = 0 -- Adjust the brightness value as desired
-    game.Lighting.ColorShift_Bottom = Color3.new(0, 0, 0)
-    game.Lighting.ColorShift_Top = Color3.new(0, 0, 0)
-
-    game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
-
-    -- Remove accessories for the local player
-    RemovePlayerAccessories(game.Players.LocalPlayer)
-    wait(5)
+-- Check for "Map" in workspace and modify it
+local map = game.Workspace:FindFirstChild("Map")
+if map then
+    TraverseAndModify(map)
 end
+
+game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
+
+-- Additional optimizations
+game.Lighting.GlobalShadows = false
+game.Lighting.Outlines = false
+game.Lighting.Ambient = Color3.new(0, 0, 0)
+game.Lighting.Brightness = 0 -- Adjust the brightness value as desired
+game.Lighting.ColorShift_Bottom = Color3.new(0, 0, 0)
+game.Lighting.ColorShift_Top = Color3.new(0, 0, 0)
+
+game.Workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+
+-- Remove accessories for the local player
+RemovePlayerAccessories(game.Players.LocalPlayer)
