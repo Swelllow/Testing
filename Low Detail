@@ -106,4 +106,5 @@ while true do
 
     -- Remove accessories for the local player
     RemovePlayerAccessories(game.Players.LocalPlayer)
+    wait(5)
 end
